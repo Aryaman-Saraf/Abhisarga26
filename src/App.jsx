@@ -1,19 +1,9 @@
 import { useEffect, useState } from "react"
 import { Routes, Route } from "react-router-dom"
 import IntroVideo from "./components/IntroVideo"
-import SmoothScroll from "./components/SmoothScroll"
-import Navigation from "./components/Navigation"
-import Hero from "./sections/Hero"
-import About from "./sections/About"
-import Events from "./sections/Events"
-import Schedule from "./sections/Schedule"
-import Sponsors from "./sections/Sponsors"
-import Team from "./sections/Team"
-import Gallery from "./sections/Gallery"
-import Footer from "./sections/Footer"
-import PortalPulse from "./components/PortalPulse"
 import ContactPage from "./pages/ContactPage"
-import Oneko from "./components/Oneko"
+import HomePage from "./pages/HomePage"
+import MainLayout from "./layouts/MainLayout"
 
 const INTRO_KEY = "abhisarga_intro_timestamp"
 const INTRO_COOLDOWN =100000 * 60  // 24 hours
@@ -47,24 +37,10 @@ export default function App() {
 
   return (
     <Routes>
-      <Route path="/" element={
-        <SmoothScroll>
-          <div className="relative min-h-screen bg-[#030204] text-white">
-            <Oneko />
-            <PortalPulse />
-            <Navigation />
-            <Hero />
-            <About />
-            <Events />
-            <Schedule />
-            <Sponsors />
-            <Team />
-            <Gallery />
-            <Footer />
-          </div>
-        </SmoothScroll>
-      } />
-      <Route path="/contact" element={<ContactPage />} />
+      <Route element={<MainLayout />}>
+        <Route index element={<HomePage />} />
+        <Route path="contact" element={<ContactPage />} />
+      </Route>
     </Routes>
   )
 }
