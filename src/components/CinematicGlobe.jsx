@@ -113,17 +113,19 @@ function Earth({ scrollProgress }) {
     }
     // Phase 3: Zoom into India - camera stays on Z axis, globe is rotated correctly (30-100%)
     else {
-      // Lock rotation to show India
+      // Lock rotation to show India's longitude
       groupRef.current.rotation.y = indiaRotationY
       
       // Calculate zoom progress (0 to 1 from 30% to 100%)
       const zoomProgress = (scrollProgress - 0.30) / 0.70
       const easedZoom = easeOutCubic(zoomProgress)
       
-      // Also tilt the globe slightly to better center on India's latitude (13.5°N)
-      // This is a rotation around X axis to bring South India into better view
-      const latTilt = IIIT_LAT * (Math.PI / 180) * 0.5 // Gentle tilt
-      groupRef.current.rotation.x = THREE.MathUtils.lerp(0, -latTilt, easedZoom)
+      // Tilt the globe to center on India's latitude (13.5°N)
+      // We need to rotate around X axis to bring the latitude into view
+      // Positive X rotation tilts the top of the globe toward the camera
+      // This brings northern latitudes into center view
+      const latTilt = IIIT_LAT * (Math.PI / 180) // Full latitude tilt
+      groupRef.current.rotation.x = THREE.MathUtils.lerp(0, latTilt, easedZoom)
       
       // Camera zooms in along Z axis (India is facing camera)
       // From distance 3.0 to very close 1.05
@@ -131,11 +133,9 @@ function Earth({ scrollProgress }) {
       const endDist = 1.08
       const currentDist = THREE.MathUtils.lerp(startDist, endDist, easedZoom)
       
-      // Slight vertical offset to center on South India as we zoom
-      const yOffset = easedZoom * -0.15 // Move camera slightly down to center on South India
-      
-      camera.position.set(0, yOffset, currentDist)
-      camera.lookAt(0, yOffset * 0.5, 0)
+      // Camera position - slight adjustment for better framing
+      camera.position.set(0, 0, currentDist)
+      camera.lookAt(0, 0, 0)
     }
   })
 
