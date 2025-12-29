@@ -76,6 +76,7 @@ export default function GuildMap() {
   const [userPos, setUserPos] = useState(null)
   const [locating, setLocating] = useState(false)
   const [selectedCity, setSelectedCity] = useState("")
+  const [locationAccuracy, setLocationAccuracy] = useState(null)
   
   const journey = calculateJourney(userPos, GUILD_HALL_POS)
 
@@ -102,19 +103,90 @@ export default function GuildMap() {
 
   const handleLocateMe = () => {
     setLocating(true)
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserPos([position.coords.latitude, position.coords.longitude])
-          setLocating(false)
-          setSelectedCity("")
-        },
-        () => {
-          alert("Could not detect your location. Please select a city or click on the map.")
-          setLocating(false)
-        }
-      )
+    
+    console.log("🔍 Starting location detection...")
+    
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser. Please select a city or click on the map.")
+      setLocating(false)
+      return
     }
+
+    // Try high accuracy first
+    const highAccuracyOptions = {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    }
+    
+    console.log("📍 Requesting high accuracy location...")
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude, accuracy } = position.coords
+        console.log(`✅ Location detected: ${latitude}, ${longitude} (±${accuracy}m)`)
+        setUserPos([latitude, longitude])
+        setLocationAccuracy(Math.round(accuracy))
+        setLocating(false)
+        setSelectedCity("")
+      },
+      (error) => {
+        console.error("❌ High accuracy failed:", error.message, "Code:", error.code)
+        
+        // If high accuracy fails, try with low accuracy as fallback
+        if (error.code === error.TIMEOUT || error.code === error.POSITION_UNAVAILABLE) {
+          console.log("⚡ Trying low accuracy fallback...")
+          
+          const lowAccuracyOptions = {
+            enableHighAccuracy: false,
+            timeout: 5000,
+            maximumAge: 60000 // Accept 1 minute old position
+          }
+          
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const { latitude, longitude, accuracy } = position.coords
+              console.log(`✅ Location detected (low accuracy): ${latitude}, ${longitude} (±${accuracy}m)`)
+              setUserPos([latitude, longitude])
+              setLocationAccuracy(Math.round(accuracy))
+              setLocating(false)
+              setSelectedCity("")
+            },
+            (fallbackError) => {
+              console.error("❌ Low accuracy also failed:", fallbackError.message)
+              showError(fallbackError)
+            },
+            lowAccuracyOptions
+          )
+        } else {
+          showError(error)
+        }
+      },
+      highAccuracyOptions
+    )
+  }
+  
+  const showError = (error) => {
+    let errorMessage = "Could not detect your location. "
+    switch(error.code) {
+      case 1: // PERMISSION_DENIED
+        errorMessage += "Location permission denied. Please:\n1. Click the lock icon in your browser's address bar\n2. Allow location access\n3. Refresh the page and try again."
+        break
+      case 2: // POSITION_UNAVAILABLE
+        errorMessage += "Location information unavailable. Please:\n1. Enable location services on your device\n2. Try selecting a city from the dropdown\n3. Or click anywhere on the map to set your location."
+        break
+      case 3: // TIMEOUT
+        errorMessage += "Location request timed out. Please:\n1. Check your internet connection\n2. Try again or select a city from the dropdown."
+        break
+      default:
+        errorMessage += "Please select a city or click on the map."
+    }
+    alert(errorMessage)
+    setLocating(false)
+    console.error("Geolocation error details:", {
+      code: error.code,
+      message: error.message
+    })
   }
 
   const handleCitySelect = (cityName) => {
@@ -122,11 +194,25 @@ export default function GuildMap() {
     if (city && city.coords) {
       setUserPos(city.coords)
       setSelectedCity(cityName)
+      setLocationAccuracy(null) // Clear accuracy for city selection
     }
   }
 
   return (
     <div className="space-y-6">
+      {/* Help Text */}
+      <div className="bg-amber-950/20 border border-amber-600/20 rounded-lg p-3 text-xs text-amber-200/80">
+        <strong>💡 Location Detection:</strong> Click "Detect My Realm" to get your exact location. 
+        {locating && (
+          <span className="block mt-1 text-yellow-300 animate-pulse">
+            🔍 Detecting... This may take a few seconds.
+          </span>
+        )}
+        <span className="block mt-1 opacity-75">
+          Make sure location services are enabled in your browser settings.
+        </span>
+      </div>
+      
       {/* Journey Planning Controls */}
       <div className="grid md:grid-cols-2 gap-4">
         {/* Location Input */}
@@ -165,6 +251,20 @@ export default function GuildMap() {
               </>
             )}
           </button>
+          
+          {/* Location Accuracy Indicator */}
+          {locationAccuracy && (
+            <div className="mt-2 text-xs text-center">
+              <span className={`inline-flex items-center gap-1 px-2 py-1 rounded ${
+                locationAccuracy < 100 ? 'bg-green-900/30 text-green-300' :
+                locationAccuracy < 500 ? 'bg-yellow-900/30 text-yellow-300' :
+                'bg-orange-900/30 text-orange-300'
+              }`}>
+                <MapPin className="w-3 h-3" />
+                Accuracy: ±{locationAccuracy}m
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
