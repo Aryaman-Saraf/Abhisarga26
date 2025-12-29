@@ -34,10 +34,10 @@ function Earth({ scrollProgress }) {
   const { camera } = useThree()
   
   const [dayMap, bumpMap, specularMap, cloudsMap] = useTexture([
-    '/textures/earth-day.jpg',
+    '/textures/earth-day-hq.jpg',      // 8K high resolution
     '/textures/earth-bump.jpg',
     '/textures/earth-specular.jpg',
-    '/textures/earth-clouds.png',
+    '/textures/earth-clouds-hq.jpg',   // 8K high resolution
   ])
 
   // Calculate the Y rotation needed to show India (IIIT Sri City) facing the camera
