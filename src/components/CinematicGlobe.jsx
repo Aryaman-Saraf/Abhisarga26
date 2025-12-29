@@ -139,8 +139,8 @@ function Earth({ scrollProgress }) {
     }
   })
 
-  // Show marker when zoomed in enough (after India is centered)
-  const showMarker = scrollProgress > 0.45 && scrollProgress < 0.88
+  // Show marker when zoomed in enough (after India is centered, before satellite takes over)
+  const showMarker = scrollProgress > 0.45 && scrollProgress < 0.78
 
   return (
     <group ref={groupRef}>
@@ -175,41 +175,81 @@ function Earth({ scrollProgress }) {
   )
 }
 
-// IIIT Marker Component
+// IIIT Marker Component - Elegant pin marker
 function IIITMarker({ scrollProgress }) {
-  const meshRef = useRef()
-  const position = useMemo(() => latLonToVector3(IIIT_LAT, IIIT_LON, 1.02), [])
+  const groupRef = useRef()
+  const beamRef = useRef()
+  const position = useMemo(() => latLonToVector3(IIIT_LAT, IIIT_LON, 1.005), [])
+  
+  // Calculate the normal direction (pointing outward from globe center)
+  const normal = useMemo(() => position.clone().normalize(), [position])
   
   useFrame((state) => {
-    if (meshRef.current) {
-      const scale = 1 + Math.sin(state.clock.elapsedTime * 3) * 0.3
-      meshRef.current.scale.setScalar(scale)
+    if (beamRef.current) {
+      // Animate the beam height
+      const pulse = 0.5 + Math.sin(state.clock.elapsedTime * 2) * 0.3
+      beamRef.current.scale.y = pulse
     }
   })
 
   const markerOpacity = Math.min((scrollProgress - 0.45) / 0.1, 1)
+  
+  // Calculate rotation to align marker with globe surface normal
+  const quaternion = useMemo(() => {
+    const up = new THREE.Vector3(0, 1, 0)
+    const q = new THREE.Quaternion()
+    q.setFromUnitVectors(up, normal)
+    return q
+  }, [normal])
 
   return (
-    <group position={position}>
-      <mesh ref={meshRef}>
-        <sphereGeometry args={[0.015, 16, 16]} />
-        <meshBasicMaterial color="#ff2546" transparent opacity={markerOpacity} />
+    <group position={position} quaternion={quaternion}>
+      {/* Glowing base ring on surface */}
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.001, 0]}>
+        <ringGeometry args={[0.008, 0.012, 32]} />
+        <meshBasicMaterial color="#00ffff" transparent opacity={markerOpacity * 0.8} side={THREE.DoubleSide} />
       </mesh>
       
-      {/* Pulsing ring */}
-      <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.02, 0.03, 32]} />
-        <meshBasicMaterial color="#ff2546" transparent opacity={markerOpacity * 0.6} side={THREE.DoubleSide} />
+      {/* Outer pulsing ring */}
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.001, 0]}>
+        <ringGeometry args={[0.015, 0.018, 32]} />
+        <meshBasicMaterial color="#00ffff" transparent opacity={markerOpacity * 0.4} side={THREE.DoubleSide} />
       </mesh>
 
-      {scrollProgress > 0.55 && scrollProgress < 0.85 && (
-        <Html position={[0, 0.05, 0]} center style={{ pointerEvents: 'none' }}>
+      {/* Vertical beam of light */}
+      <mesh ref={beamRef} position={[0, 0.025, 0]}>
+        <cylinderGeometry args={[0.002, 0.004, 0.05, 8]} />
+        <meshBasicMaterial color="#00ffff" transparent opacity={markerOpacity * 0.6} />
+      </mesh>
+
+      {/* Diamond/crystal marker at top */}
+      <mesh position={[0, 0.055, 0]}>
+        <octahedronGeometry args={[0.008, 0]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={markerOpacity} />
+      </mesh>
+      
+      {/* Glow effect around diamond */}
+      <mesh position={[0, 0.055, 0]}>
+        <sphereGeometry args={[0.012, 16, 16]} />
+        <meshBasicMaterial color="#00ffff" transparent opacity={markerOpacity * 0.3} />
+      </mesh>
+
+      {/* Label */}
+      {scrollProgress > 0.52 && scrollProgress < 0.75 && (
+        <Html position={[0, 0.08, 0]} center style={{ pointerEvents: 'none' }}>
           <div 
-            className="bg-black/90 backdrop-blur-sm px-3 py-1.5 rounded-lg text-sm text-white whitespace-nowrap border border-red-500"
-            style={{ opacity: Math.min((scrollProgress - 0.55) / 0.1, 1) }}
+            className="px-4 py-2 rounded-lg text-sm text-white whitespace-nowrap"
+            style={{ 
+              opacity: Math.min((scrollProgress - 0.52) / 0.08, 1),
+              background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,30,40,0.9) 100%)',
+              border: '1px solid rgba(0, 255, 255, 0.5)',
+              boxShadow: '0 0 20px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(0, 255, 255, 0.1)'
+            }}
           >
-            <span className="text-red-400 mr-1">📍</span>
-            IIIT Sri City
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
+              <span className="font-semibold text-cyan-300">IIIT Sri City</span>
+            </div>
           </div>
         </Html>
       )}
@@ -269,14 +309,14 @@ function GlobeLoader() {
   )
 }
 
-// Satellite Map Overlay - Only shows at very end
+// Satellite Map Overlay - Shows during close zoom
 function SatelliteOverlay({ scrollProgress }) {
   const [tiles, setTiles] = useState([])
   
-  // Only show at 85%+ scroll
+  // Start showing at 75% scroll (earlier for better quality during zoom)
   const opacity = useMemo(() => {
-    if (scrollProgress < 0.85) return 0
-    return Math.min((scrollProgress - 0.85) / 0.1, 1)
+    if (scrollProgress < 0.75) return 0
+    return Math.min((scrollProgress - 0.75) / 0.1, 1)
   }, [scrollProgress])
 
   const mapZoom = useMemo(() => {
@@ -439,9 +479,9 @@ export default function CinematicGlobe() {
     return () => trigger.kill()
   }, [])
 
-  // Globe opacity - only fade at very end when satellite appears
-  const globeOpacity = scrollProgress > 0.82 
-    ? Math.max(0, 1 - (scrollProgress - 0.82) / 0.12)
+  // Globe opacity - fade when satellite appears (starts at 75%)
+  const globeOpacity = scrollProgress > 0.72 
+    ? Math.max(0, 1 - (scrollProgress - 0.72) / 0.15)
     : 1
 
   return (
