@@ -1,44 +1,73 @@
-import { Mail, Zap } from "lucide-react"
-import { useRef, useEffect, useState, useCallback } from "react"
-import { motion, useAnimation, animate } from "framer-motion"
+import { useRef, useEffect, useState } from "react"
+import { motion, useAnimation } from "framer-motion"
 
-// Team data - Stranger Things themed
+// Team data - MTG/D&D card style with color themes and character images
 const contacts = [
   {
     name: "Yashwanth S",
     role: "Chair",
+    type: "Legendary Leader — Visionary",
     email: "secretary.sdc@iiits.in",
-    tagline: "Leading the guild forward",
+    tagline: "When Yashwanth enters the battlefield, all team members gain +2/+2 and vigilance until end of turn.",
+    stats: "5/5",
+    color: "#0891b2", // Cyan/Teal
+    mana: "3UU",
+    character: "/characters/wizard.png",
   },
   {
     name: "Charvi Palem",
     role: "Co-Chair",
+    type: "Legendary Coordinator — Strategist",
     email: "charvi.p22@iiits.in",
-    tagline: "Orchestrating great adventures",
+    tagline: "Tap: Look at the top three cards of your library. Put one into your hand and the rest on the bottom.",
+    stats: "3/4",
+    color: "#f59e0b", // Amber/Gold
+    mana: "2WU",
+    character: "/characters/mage.png",
   },
   {
     name: "Suyash Tiwari",
     role: "Co-Chair",
+    type: "Legendary Creator — Artisan",
     email: "suyash.t22@iiits.in",
-    tagline: "Bringing visions to life",
+    tagline: "At the beginning of each upkeep, create a 1/1 colorless Artifact creature token.",
+    stats: "3/3",
+    color: "#10b981", // Green
+    mana: "2GG",
+    character: "/characters/rogue.png",
   },
   {
     name: "Abhinav Mars",
     role: "SLC President",
+    type: "Legendary Champion — Student",
     email: "president.slc@iiits.in",
-    tagline: "Student leadership excellence",
+    tagline: "First strike, lifelink. Whenever Abhinav deals combat damage, draw a card.",
+    stats: "4/4",
+    color: "#dc2626", // Red
+    mana: "3RR",
+    character: "/characters/warrior.png",
   },
   {
     name: "Kannan M",
     role: "SDC President",
+    type: "Legendary Innovator — Engineer",
     email: "president.sdc@iiits.in",
-    tagline: "Driving innovation forward",
+    tagline: "Hexproof. At the beginning of your end step, untap all artifacts you control.",
+    stats: "4/5",
+    color: "#7c3aed", // Purple
+    mana: "2UB",
+    character: "/characters/knight.png",
   },
   {
     name: "Shreeraj M",
     role: "Sponsorship Lead",
+    type: "Legendary Merchant — Diplomat",
     email: "abhisarga.sponsorship@iiits.in",
-    tagline: "Building powerful partnerships",
+    tagline: "When Shreeraj enters the battlefield, add three mana of any color to your mana pool.",
+    stats: "2/3",
+    color: "#ea580c", // Orange
+    mana: "1WG",
+    character: "/characters/archer.png",
   }
 ]
 
@@ -219,7 +248,7 @@ export default function ContactCardsSection() {
 
   return (
     <section ref={sectionRef} className="relative py-20 min-h-[700px]">
-      {/* Header */}
+      {/* Header - MTG Style */}
       <motion.div
         className="text-center mb-24"
         initial={{ opacity: 0, y: 30 }}
@@ -227,15 +256,24 @@ export default function ContactCardsSection() {
         transition={{ duration: 1, ease: "easeOut" }}
       >
         <h2 
-          className="text-4xl md:text-5xl font-black text-red-500 mb-3 tracking-tight"
+          className="text-4xl md:text-5xl font-bold mb-3 tracking-wide"
           style={{
-            textShadow: "0 0 40px rgba(220,38,38,0.5), 0 0 80px rgba(220,38,38,0.3)",
+            color: "#d4c8b8",
+            textShadow: "0 2px 8px rgba(0,0,0,0.8), 0 0 40px rgba(212,200,184,0.2)",
+            fontFamily: "Georgia, 'Times New Roman', serif",
           }}
         >
           THE GUILD
         </h2>
-        <p className="text-red-200/60 text-lg tracking-widest uppercase">
-          Friends don&apos;t lie
+        <p 
+          className="text-sm tracking-widest uppercase"
+          style={{ 
+            color: "#8a8580",
+            fontFamily: "Georgia, serif",
+            letterSpacing: "0.3em"
+          }}
+        >
+          Legendary Creatures — Leadership
         </p>
       </motion.div>
 
@@ -279,120 +317,209 @@ export default function ContactCardsSection() {
                 transition: { duration: 0.3, ease: "easeOut" }
               } : {}}
             >
-              {/* STRANGER THINGS METALLIC CARD */}
+              {/* ================================================== */}
+              {/* MTG / D&D CARD - Exact replica style               */}
+              {/* ================================================== */}
               <div 
-                className="w-full h-full rounded-lg relative overflow-hidden"
+                className="w-full h-full relative overflow-hidden select-none"
                 style={{
-                  background: "linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 50%, #1a1a1a 100%)",
-                  border: "2px solid #2a2a2a",
-                  boxShadow: "0 25px 50px -12px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.3)",
+                  background: "#171314",
+                  borderRadius: "12px",
+                  padding: "6px",
+                  boxShadow: `
+                    0 20px 40px -10px rgba(0,0,0,0.8),
+                    0 0 0 1px rgba(255,255,255,0.05)
+                  `,
                 }}
               >
-                {/* Metallic shine overlay */}
+                {/* Inner card frame */}
                 <div 
-                  className="absolute inset-0 pointer-events-none"
+                  className="w-full h-full relative overflow-hidden"
                   style={{
-                    background: "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.03) 50%, transparent 70%)",
+                    background: "#1a1517",
+                    borderRadius: "8px",
+                    border: "2px solid #2d2a2b",
                   }}
-                />
-
-                {/* Top red accent line - Stranger Things style */}
-                <div 
-                  className="absolute top-0 left-0 right-0 h-1"
-                  style={{
-                    background: "linear-gradient(90deg, transparent, #dc2626, #ef4444, #dc2626, transparent)",
-                    boxShadow: "0 0 20px rgba(220,38,38,0.6), 0 0 40px rgba(220,38,38,0.3)"
-                  }}
-                />
-
-                {/* Content */}
-                <div className="relative z-10 h-full flex flex-col p-5">
-                  {/* Top section with lightning icon */}
-                  <div className="flex justify-end mb-4">
-                    <Zap 
-                      className="w-5 h-5" 
+                >
+                  {/* === TOP BAR: Name + Mana Cost === */}
+                  <div 
+                    className="relative mx-1.5 mt-1.5 px-2 py-1 flex items-center justify-between"
+                    style={{
+                      background: "linear-gradient(180deg, #d4c8b8 0%, #c4b8a4 50%, #b8a890 100%)",
+                      borderRadius: "4px 4px 0 0",
+                      border: "1px solid #2d2a2b",
+                      borderBottom: "none",
+                    }}
+                  >
+                    <span 
+                      className="text-xs font-bold tracking-wide"
                       style={{ 
-                        color: "#dc2626",
-                        filter: "drop-shadow(0 0 8px rgba(220,38,38,0.8))"
-                      }} 
-                    />
+                        color: "#1a1517",
+                        fontFamily: "Georgia, serif",
+                        textShadow: "0 1px 0 rgba(255,255,255,0.3)"
+                      }}
+                    >
+                      {contact.name}
+                    </span>
+                    {/* Mana symbols */}
+                    <div className="flex gap-0.5">
+                      {contact.mana.split('').map((m, i) => (
+                        <div 
+                          key={i}
+                          className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold"
+                          style={{
+                            background: m === 'U' ? "linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)" :
+                                       m === 'W' ? "linear-gradient(135deg, #fef9c3 0%, #fde047 100%)" :
+                                       m === 'G' ? "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" :
+                                       m === 'R' ? "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)" :
+                                       m === 'B' ? "linear-gradient(135deg, #6b7280 0%, #374151 100%)" :
+                                       "linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)",
+                            color: m === 'W' ? "#1a1517" : "#fff",
+                            boxShadow: "inset 0 1px 2px rgba(255,255,255,0.3), 0 1px 2px rgba(0,0,0,0.3)",
+                            border: "1px solid rgba(0,0,0,0.3)"
+                          }}
+                        >
+                          {isNaN(m) ? "" : m}
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
-                  {/* Main content - centered */}
-                  <div className="flex-1 flex flex-col items-center justify-center text-center">
-                    {/* Name - bold, metallic look */}
-                    <h3 
-                      className="text-xl font-black tracking-wide mb-2"
-                      style={{
-                        color: "#e5e5e5",
-                        textShadow: "0 2px 4px rgba(0,0,0,0.5)"
-                      }}
-                    >
-                      {contact.name.toUpperCase()}
-                    </h3>
-
-                    {/* Role badge */}
+                  {/* === ART BOX === */}
+                  <div 
+                    className="relative mx-1.5 overflow-hidden"
+                    style={{
+                      height: "95px",
+                      background: contact.color,
+                      border: "2px solid #2d2a2b",
+                    }}
+                  >
+                    {/* Art background gradient */}
                     <div 
-                      className="px-4 py-1.5 rounded mb-4"
+                      className="absolute inset-0"
                       style={{
-                        background: "linear-gradient(180deg, #2d1515 0%, #1a0a0a 100%)",
-                        border: "1px solid #4a1a1a",
-                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)"
+                        background: `linear-gradient(180deg, ${contact.color}dd 0%, ${contact.color} 100%)`,
+                      }}
+                    />
+                    {/* Pixel character image */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <img 
+                        src={contact.character}
+                        alt={contact.name}
+                        className="h-20 w-auto object-contain"
+                        style={{
+                          imageRendering: "pixelated",
+                          filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.5))"
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* === TYPE LINE === */}
+                  <div 
+                    className="relative mx-1.5 px-2 py-0.5"
+                    style={{
+                      background: "linear-gradient(180deg, #d4c8b8 0%, #c4b8a4 50%, #b8a890 100%)",
+                      border: "1px solid #2d2a2b",
+                      borderTop: "none",
+                    }}
+                  >
+                    <span 
+                      className="text-[9px] font-semibold"
+                      style={{ 
+                        color: "#1a1517",
+                        fontFamily: "Georgia, serif",
                       }}
                     >
-                      <span 
-                        className="text-xs font-bold tracking-widest uppercase"
-                        style={{ color: "#dc2626" }}
-                      >
-                        {contact.role}
-                      </span>
-                    </div>
+                      {contact.type}
+                    </span>
+                  </div>
 
-                    {/* Divider line */}
-                    <div className="w-16 h-px bg-linear-to-r from-transparent via-red-600/50 to-transparent mb-4" />
-
-                    {/* Tagline */}
+                  {/* === TEXT BOX === */}
+                  <div 
+                    className="relative mx-1.5 mt-0.5 p-2 flex-1"
+                    style={{
+                      background: "linear-gradient(180deg, #e8dfd0 0%, #d8cfc0 100%)",
+                      border: "2px solid #2d2a2b",
+                      borderRadius: "0 0 4px 4px",
+                      minHeight: "70px",
+                    }}
+                  >
+                    {/* Card ability text */}
                     <p 
-                      className="text-xs leading-relaxed mb-4 px-2"
-                      style={{ color: "#737373" }}
+                      className="text-[8px] leading-tight mb-2"
+                      style={{ 
+                        color: "#1a1517",
+                        fontFamily: "Georgia, serif",
+                      }}
                     >
                       {contact.tagline}
                     </p>
+
+                    {/* Divider line */}
+                    <div 
+                      className="w-full h-px my-1"
+                      style={{ background: "rgba(0,0,0,0.15)" }}
+                    />
+
+                    {/* Email as flavor text */}
+                    <p 
+                      className="text-[7px] italic"
+                      style={{ 
+                        color: "#4a4540",
+                        fontFamily: "Georgia, serif",
+                      }}
+                    >
+                      <a 
+                        href={`mailto:${contact.email}`}
+                        className="hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        ✉ {contact.email}
+                      </a>
+                    </p>
                   </div>
 
-                  {/* Bottom section - contact button */}
-                  <a
-                    href={`mailto:${contact.email}`}
-                    className="flex items-center justify-center gap-2 py-2.5 rounded transition-all duration-300 group"
+                  {/* === BOTTOM BAR: Stats === */}
+                  <div 
+                    className="absolute bottom-1.5 right-2 px-2 py-0.5"
                     style={{
-                      background: "linear-gradient(180deg, #1f1f1f 0%, #141414 100%)",
-                      border: "1px solid #333",
+                      background: "linear-gradient(180deg, #d4c8b8 0%, #b8a890 100%)",
+                      borderRadius: "4px",
+                      border: "1px solid #2d2a2b",
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
                     }}
-                    onClick={(e) => e.stopPropagation()}
                   >
-                    <Mail className="w-4 h-4 text-red-500 group-hover:text-red-400" />
-                    <span className="text-xs font-semibold text-neutral-400 group-hover:text-neutral-300 tracking-wide">
-                      CONTACT
+                    <span 
+                      className="text-sm font-bold"
+                      style={{ 
+                        color: "#1a1517",
+                        fontFamily: "Georgia, serif",
+                      }}
+                    >
+                      {contact.stats}
                     </span>
-                  </a>
-                </div>
+                  </div>
 
-                {/* Corner accents */}
-                <div className="absolute top-3 left-3 w-3 h-3 border-l-2 border-t-2 border-red-600/30" />
-                <div className="absolute top-3 right-3 w-3 h-3 border-r-2 border-t-2 border-red-600/30" />
-                <div className="absolute bottom-3 left-3 w-3 h-3 border-l-2 border-b-2 border-red-600/30" />
-                <div className="absolute bottom-3 right-3 w-3 h-3 border-r-2 border-b-2 border-red-600/30" />
+                  {/* Set symbol area (bottom left) */}
+                  <div 
+                    className="absolute bottom-1.5 left-2 text-[6px]"
+                    style={{ color: "#6b6560" }}
+                  >
+                    ABH • 2026
+                  </div>
+                </div>
               </div>
             </motion.div>
           )
         })}
       </div>
 
-      {/* Ambient red glow */}
+      {/* Subtle ambient glow */}
       <div 
         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-32 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse at center bottom, rgba(220,38,38,0.15) 0%, transparent 70%)",
+          background: "radial-gradient(ellipse at center bottom, rgba(212,200,184,0.08) 0%, transparent 70%)",
           filter: "blur(40px)"
         }}
       />
