@@ -36,7 +36,7 @@ export default function Contact() {
             transition={{ duration: 1, ease: "easeOut" }}
           >
             <motion.h1
-              className="text-6xl md:text-7xl font-bold mb-6 bg-linear-to-r from-red-200 via-orange-300 to-red-200 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(239,68,68,0.5)]"
+              className="mt-40 text-6xl md:text-7xl font-bold mb-6 bg-linear-to-r from-red-200 via-orange-300 to-red-200 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(239,68,68,0.5)]"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5, duration: 0.8 }}
@@ -45,7 +45,7 @@ export default function Contact() {
             </motion.h1>
             
             <motion.p
-              className="text-xl md:text-2xl text-red-100/90 max-w-2xl mx-auto font-light leading-relaxed drop-shadow-lg"
+              className="mb-20 text-xl md:text-2xl text-red-100/90 max-w-2xl mx-auto font-light leading-relaxed drop-shadow-lg"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7, duration: 0.8 }}
@@ -56,7 +56,7 @@ export default function Contact() {
 
           {/* Contact Our Wizards Section */}
           <motion.div
-            className="mb-20"
+            className="mb-20 mt-60"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
