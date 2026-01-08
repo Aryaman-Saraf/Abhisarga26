@@ -1,10 +1,12 @@
+"use client";
+
 import { useRef, useEffect, useState } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { TimelineCard } from './TimelineCard';
 import { TimelineConnector } from './TimelineConnector';
 import { FogOverlay } from './FogOverlay';
 import { useActiveCard } from './hooks/useActiveCard';
-import ghosttImage from '../../assets/ghostt.png';
+const ghosttImage = '/ghostt.png';
 
 export const EventTimeline = ({ events, className = '' }) => {
   // Early return if no events
@@ -39,7 +41,7 @@ export const EventTimeline = ({ events, className = '' }) => {
   const x = useMotionValue(0);
 
   // Get active card based on center position (card visually in front)
-  const activeIndex = useActiveCard(containerRef, cardRefs, events.length);
+  const activeIndex = useActiveCard(containerRef, cardRefs, events.length, x);
 
   // Keep selectedIndex in sync with whichever card is visually in front
   useEffect(() => {
@@ -315,14 +317,7 @@ export const EventTimeline = ({ events, className = '' }) => {
           >
             Event Timeline
           </motion.h1>
-          <motion.p
-            className="text-white/60 text-base md:text-lg max-w-xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
-            Drag the scrollbar below or use ghost arrows to navigate through events
-          </motion.p>
+          
 
           {/* Date timeline bar with ghost arrows */}
           <motion.div
@@ -416,7 +411,7 @@ export const EventTimeline = ({ events, className = '' }) => {
 
         {/* Horizontal Scrollbar */}
         <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1 }}

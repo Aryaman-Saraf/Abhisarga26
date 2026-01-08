@@ -167,3 +167,37 @@ button {
 .guild-popup .leaflet-popup-content {
   margin: 8px 12px;
 }
+
+/* Event Timeline Styles */
+/* Stranger Things Benguiat-style Typography */
+.st-title {
+  font-family: 'Cinzel', 'Cinzel Decorative', serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.1;
+  text-shadow:
+    0 0 10px rgba(255, 37, 70, 0.6),
+    0 0 30px rgba(255, 37, 70, 0.4),
+    0 0 50px rgba(255, 37, 70, 0.2);
+}
+
+.st-glow {
+  text-shadow:
+    0 0 10px rgba(255, 37, 70, 0.6),
+    0 0 30px rgba(255, 37, 70, 0.4);
+}
+
+.st-card-glow {
+  box-shadow:
+    0 0 15px rgba(255, 37, 70, 0.3),
+    0 0 30px rgba(255, 37, 70, 0.15),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.st-card-glow-active {
+  box-shadow:
+    0 0 25px rgba(255, 37, 70, 0.5),
+    0 0 50px rgba(255, 37, 70, 0.3),
+    0 0 80px rgba(255, 37, 70, 0.15),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+}

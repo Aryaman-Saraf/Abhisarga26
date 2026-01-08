@@ -1,7 +1,9 @@
+"use client";
+
 import { forwardRef, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import demogorgonHandLeft from '../../assets/demogorgon-hand-left.png';
-import demogorgonHandRight from '../../assets/demogorgon-hand-right.png';
+const demogorgonHandLeft = '/demogorgon-hand-left.png';
+const demogorgonHandRight = '/demogorgon-hand-right.png';
 
 // Fire spark component
 const FireSpark = ({ delay, left }) => (
@@ -35,25 +37,26 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
   const [sparks, setSparks] = useState([]);
   const sparkIdRef = useRef(0);
 
-  // Generate continuous sparks when hovered
+  // Generate continuous sparks when active (center card) or hovered
   useEffect(() => {
-    if (!isHovered) {
+    if (!isActive && !isHovered) {
       setSparks([]);
       return;
     }
 
     const interval = setInterval(() => {
-      const newSparks = Array.from({ length: 8 }, () => ({
+      const sparkCount = isActive && isHovered ? 12 : 8; // More sparks when both active and hovered
+      const newSparks = Array.from({ length: sparkCount }, () => ({
         id: sparkIdRef.current++,
         delay: Math.random() * 0.05,
         left: 5 + Math.random() * 90,
       }));
-      
+
       setSparks(prev => [...prev.slice(-40), ...newSparks]);
-    }, 50);
+    }, isActive && isHovered ? 40 : 50); // Faster sparks when both active and hovered
 
     return () => clearInterval(interval);
-  }, [isHovered]);
+  }, [isActive, isHovered]);
 
   const cardVariants = {
     hidden: {
@@ -93,14 +96,14 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
         transition-all duration-500 ease-out
         ${isActive ? 'scale-105 z-20' : 'scale-100 z-10'}
         ${isPast ? 'opacity-60' : ''}
-        ${isFuture ? 'opacity-70 blur-[1px]' : ''}
+        ${isFuture && !isActive ? 'opacity-70 blur-[1px]' : ''}
       `}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Demogorgon Hands for Active Card */}
+      {/* Demogorgon Hands for Active Card (only when not hovered) */}
       <AnimatePresence>
-        {isActive && (
+        {(isActive && !isHovered) && (
           <>
             {/* Right Hand */}
             <motion.div
@@ -182,9 +185,9 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
         )}
       </AnimatePresence>
 
-      {/* Fire Sparks Effect on Hover */}
+      {/* Fire Sparks Effect for Active Card or on Hover */}
       <AnimatePresence>
-        {isHovered && (
+        {(isActive || isHovered) && (
           <div className="absolute inset-x-0 top-0 h-20 pointer-events-none z-40 overflow-visible">
             {sparks.map((spark) => (
               <FireSpark key={spark.id} delay={spark.delay} left={spark.left} />
