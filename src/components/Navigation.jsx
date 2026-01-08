@@ -1,3 +1,6 @@
+'use client'
+
+import Link from "next/link"
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -9,6 +12,7 @@ const links = [
   { href: "#sponsors", label: "Allies" },
   { href: "#team", label: "Crew" },
   { href: "#gallery", label: "Gallery" },
+  { href: "/contact", label: "Contact", isRoute: true },
 ]
 
 export default function Navigation() {
@@ -38,15 +42,21 @@ export default function Navigation() {
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <a href="#hero" className="text-sm uppercase tracking-[0.6em] text-red-200 hover:text-white">
+        <Link href="/" className="text-sm uppercase tracking-[0.6em] text-red-200 hover:text-white">
           ABHISARGA'26
-        </a>
+        </Link>
 
         <nav className="hidden items-center gap-6 text-xs uppercase tracking-[0.4em] md:flex">
           {links.map((link) => (
-            <a key={link.href} href={link.href} className="text-white/70 hover:text-white">
-              {link.label}
-            </a>
+            link.isRoute ? (
+              <Link key={link.href} href={link.href} className="text-white/70 hover:text-white">
+                {link.label}
+              </Link>
+            ) : (
+              <a key={link.href} href={link.href} className="text-white/70 hover:text-white">
+                {link.label}
+              </a>
+            )
           ))}
         </nav>
 
@@ -69,9 +79,15 @@ export default function Navigation() {
           >
             <div className="flex flex-col gap-4 text-xs uppercase tracking-[0.5em]">
               {links.map((link) => (
-                <a key={link.href} href={link.href} className="text-white/80" onClick={() => setOpen(false)}>
-                  {link.label}
-                </a>
+                link.isRoute ? (
+                  <Link key={link.href} href={link.href} className="text-white/80" onClick={() => setOpen(false)}>
+                    {link.label}
+                  </Link>
+                ) : (
+                  <a key={link.href} href={link.href} className="text-white/80" onClick={() => setOpen(false)}>
+                    {link.label}
+                  </a>
+                )
               ))}
             </div>
           </motion.nav>

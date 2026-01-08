@@ -1,0 +1,228 @@
+/* 3D Rotating Carousel for Contact Cards */
+
+/* CSS Variables */
+:root {
+  --w: 220px;
+  --h: 280px;
+  --translateZ: 350px;
+  --rotateX: -8deg;
+  --perspective: 1000px;
+}
+
+/* Wrapper - creates perspective container */
+.carousel-wrapper {
+  width: 100%;
+  height: 450px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: var(--perspective);
+  overflow: visible;
+}
+
+/* Inner container - holds all cards and rotates */
+.carousel-inner {
+  position: relative;
+  width: var(--w);
+  height: var(--h);
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rotateX));
+  animation: rotating 25s linear infinite;
+}
+
+/* Pause on hover */
+.carousel-inner.paused {
+  animation-play-state: paused;
+}
+
+/* Rotation animation */
+@keyframes rotating {
+  from {
+    transform: rotateX(var(--rotateX)) rotateY(0deg);
+  }
+  to {
+    transform: rotateX(var(--rotateX)) rotateY(360deg);
+  }
+}
+
+/* Individual card positioning */
+.carousel-card {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(calc((360deg / var(--quantity)) * var(--index))) translateZ(var(--translateZ));
+  backface-visibility: visible;
+}
+
+/* Card content styling */
+.card-content {
+  width: 100%;
+  height: 100%;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  
+  /* Glassmorphism with lava theme */
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(30, 10, 10, 0.85) 50%,
+    rgba(0, 0, 0, 0.9) 100%
+  );
+  
+  /* Border using card color */
+  border: 2px solid rgba(var(--color-card), 0.5);
+  border-radius: 16px;
+  
+  /* Shadow effects */
+  box-shadow: 
+    0 0 20px rgba(var(--color-card), 0.3),
+    inset 0 0 60px rgba(var(--color-card), 0.05),
+    0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  
+  /* Smooth transitions */
+  transition: all 0.3s ease;
+  
+  /* Ensure content is visible */
+  overflow: hidden;
+}
+
+/* Glowing border effect */
+.card-glow {
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(var(--color-card), 0.4) 50%,
+    transparent 70%
+  );
+  border-radius: 18px;
+  z-index: 0;
+  opacity: 0.6;
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Card hover effect */
+.carousel-card:hover .card-content {
+  border-color: rgba(var(--color-card), 0.8);
+  box-shadow: 
+    0 0 40px rgba(var(--color-card), 0.5),
+    inset 0 0 80px rgba(var(--color-card), 0.1),
+    0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  transform: scale(1.05);
+}
+
+/* Floor reflection effect */
+.carousel-wrapper::after {
+  content: '';
+  position: absolute;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 80px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(239, 68, 68, 0.15) 0%,
+    rgba(239, 68, 68, 0.05) 40%,
+    transparent 70%
+  );
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  :root {
+    --w: 180px;
+    --h: 240px;
+    --translateZ: 280px;
+    --perspective: 800px;
+  }
+  
+  .carousel-wrapper {
+    height: 380px;
+  }
+  
+  .card-content {
+    padding: 1rem;
+  }
+  
+  .card-content h3 {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --w: 150px;
+    --h: 200px;
+    --translateZ: 220px;
+    --perspective: 600px;
+  }
+  
+  .carousel-wrapper {
+    height: 320px;
+  }
+  
+  .card-content {
+    padding: 0.75rem;
+  }
+  
+  .card-content h3 {
+    font-size: 0.875rem;
+  }
+  
+  .card-content span {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .card-content p {
+    font-size: 0.65rem;
+  }
+  
+  .card-content a {
+    font-size: 0.6rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* Tentacle-like accent lines on cards */
+.card-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 60px;
+  background: 
+    radial-gradient(circle at 0 0, rgba(var(--color-card), 0.3) 0%, transparent 70%);
+  border-radius: 0 0 100% 0;
+  pointer-events: none;
+}
+
+.card-content::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  background: 
+    radial-gradient(circle at 100% 100%, rgba(var(--color-card), 0.3) 0%, transparent 70%);
+  border-radius: 100% 0 0 0;
+  pointer-events: none;
+}

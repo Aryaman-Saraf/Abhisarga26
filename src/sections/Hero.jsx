@@ -1,3 +1,5 @@
+'use client'
+
 import { motion, useScroll, useTransform } from "framer-motion"
 import { useEffect, useRef, useState } from "react"
 import { heroStats, upsideQuotes } from "../data/content"
