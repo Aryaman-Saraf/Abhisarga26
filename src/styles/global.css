@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Space+Grotesk:wght@400;500;600;700&family=VT323&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cinzel+Decorative:wght@400;700&family=Space+Grotesk:wght@400;500;600;700&family=VT323&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -82,4 +82,140 @@ a {
 
 button {
   font-family: inherit;
+}
+
+/* Event Timeline Styles */
+/* Stranger Things Benguiat-style Typography */
+.st-title {
+  font-family: 'Cinzel', 'Cinzel Decorative', serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.1;
+  text-shadow: 
+    0 0 10px rgba(255, 37, 70, 0.6),
+    0 0 30px rgba(255, 37, 70, 0.4),
+    0 0 50px rgba(255, 37, 70, 0.2);
+}
+
+.st-glow {
+  text-shadow: 
+    0 0 10px rgba(255, 37, 70, 0.6),
+    0 0 30px rgba(255, 37, 70, 0.4);
+}
+
+.st-card-glow {
+  box-shadow: 
+    0 0 15px rgba(255, 37, 70, 0.3),
+    0 0 30px rgba(255, 37, 70, 0.15),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.st-card-glow-active {
+  box-shadow: 
+    0 0 25px rgba(255, 37, 70, 0.5),
+    0 0 50px rgba(255, 37, 70, 0.3),
+    0 0 80px rgba(255, 37, 70, 0.15),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.st-line-glow {
+  box-shadow: 
+    0 0 8px rgba(255, 37, 70, 0.8),
+    0 0 20px rgba(255, 37, 70, 0.4);
+}
+
+.st-dot-pulse {
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 8px rgba(255, 37, 70, 0.8),
+      0 0 20px rgba(255, 37, 70, 0.5),
+      0 0 35px rgba(255, 37, 70, 0.3);
+  }
+  50% {
+    box-shadow: 
+      0 0 15px rgba(255, 37, 70, 1),
+      0 0 35px rgba(255, 37, 70, 0.7),
+      0 0 55px rgba(255, 37, 70, 0.4);
+  }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  41% { opacity: 1; }
+  42% { opacity: 0.8; }
+  43% { opacity: 1; }
+  45% { opacity: 0.9; }
+  46% { opacity: 1; }
+}
+
+.st-flicker {
+  animation: flicker 4s infinite;
+}
+
+/* Noise grain overlay */
+.st-noise {
+  position: relative;
+}
+
+.st-noise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Fog drift animation */
+@keyframes fog-drift {
+  0%, 100% {
+    transform: translateX(0) translateY(0);
+  }
+  50% {
+    transform: translateX(10px) translateY(-5px);
+  }
+}
+
+.animate-fog-drift {
+  animation: fog-drift 20s ease-in-out infinite;
+}
+
+/* Cursor styles for timeline interaction */
+.cursor-grab {
+  cursor: grab;
+}
+
+.cursor-grabbing {
+  cursor: grabbing;
+}
+
+/* Disable text selection on interactive elements */
+.select-none {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .st-dot-pulse,
+  .st-flicker,
+  .animate-fog-drift {
+    animation: none;
+  }
 }
