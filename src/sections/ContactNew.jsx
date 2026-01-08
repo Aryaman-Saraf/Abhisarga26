@@ -1,8 +1,12 @@
+'use client'
+
 import { motion } from "framer-motion"
+import dynamic from "next/dynamic"
 import { useState } from "react"
-import CinematicGlobe from "../components/CinematicGlobe"
 import ContactCardsSection from "../components/ContactCardsSection"
 import { Send } from "lucide-react"
+
+const CinematicGlobe = dynamic(() => import("../components/CinematicGlobe"), { ssr: false })
 
 export default function Contact() {
   return (

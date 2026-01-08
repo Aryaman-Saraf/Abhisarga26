@@ -1,36 +1,51 @@
+'use client'
+
 import { useEffect } from 'react';
 
 export default function Oneko() {
   useEffect(() => {
-    // Check if oneko is already loaded
-    if (document.getElementById('oneko')) {
-      return;
-    }
+    // Avoid double injection (React Strict Mode, fast refresh, route changes)
+    if (typeof window === 'undefined') return;
+    
+    // Check if already loaded
+    if (window.__onekoLoaded) return;
+    const existingOneko = document.getElementById('oneko');
+    if (existingOneko) return;
 
-    // Load the oneko script
+    window.__onekoLoaded = true;
+
     const script = document.createElement('script');
     script.src = '/oneko/oneko.js';
     script.setAttribute('data-cat', '/oneko/oneko.gif');
+    script.id = 'oneko-script';
     document.body.appendChild(script);
 
     // Cleanup function
     return () => {
-      // Remove the script
-      const existingScript = document.querySelector('script[src="/oneko/oneko.js"]');
-      if (existingScript) {
-        document.body.removeChild(existingScript);
-      }
-      
-      // Remove the cat and tooltip elements
-      const nekoEl = document.getElementById('oneko');
-      if (nekoEl) {
-        document.body.removeChild(nekoEl);
-      }
-      
-      const tooltipEl = document.getElementById('oneko-tooltip');
-      if (tooltipEl) {
-        document.body.removeChild(tooltipEl);
-      }
+      // Small delay to ensure script cleanup happens after React's cleanup
+      setTimeout(() => {
+        try {
+          // Remove oneko elements if they exist and still have parents
+          const onekoEl = document.getElementById('oneko');
+          const tooltipEl = document.getElementById('oneko-tooltip');
+          const onekoScript = document.getElementById('oneko-script');
+          
+          if (onekoEl?.parentNode) {
+            onekoEl.parentNode.removeChild(onekoEl);
+          }
+          if (tooltipEl?.parentNode) {
+            tooltipEl.parentNode.removeChild(tooltipEl);
+          }
+          if (onekoScript?.parentNode) {
+            onekoScript.parentNode.removeChild(onekoScript);
+          }
+          
+          window.__onekoLoaded = false;
+        } catch (error) {
+          // Silently handle any cleanup errors
+          console.debug('Oneko cleanup:', error);
+        }
+      }, 0);
     };
   }, []);
 

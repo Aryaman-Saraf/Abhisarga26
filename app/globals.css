@@ -69,9 +69,9 @@ section {
 }
 
 h1,
-h2,
-h3,
-h4 {
+ h2,
+ h3,
+ h4 {
   font-family: "Cinzel Decorative", "Cormorant Garamond", serif;
   letter-spacing: 0.08em;
 }
@@ -167,4 +167,3 @@ button {
 .guild-popup .leaflet-popup-content {
   margin: 8px 12px;
 }
-

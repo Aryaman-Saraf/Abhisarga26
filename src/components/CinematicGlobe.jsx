@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useRef, useState, useMemo, Suspense } from "react"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import { Stars, Html, useTexture } from "@react-three/drei"
@@ -461,6 +463,12 @@ function SatelliteOverlay({ scrollProgress }) {
 export default function CinematicGlobe() {
   const containerRef = useRef(null)
   const [scrollProgress, setScrollProgress] = useState(0)
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+    return () => setIsMounted(false)
+  }, [])
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -476,13 +484,26 @@ export default function CinematicGlobe() {
       },
     })
 
-    return () => trigger.kill()
+    return () => {
+      trigger.kill()
+    }
   }, [])
 
   // Globe opacity - fade when satellite appears (starts at 75%)
   const globeOpacity = scrollProgress > 0.72 
     ? Math.max(0, 1 - (scrollProgress - 0.72) / 0.15)
     : 1
+
+  // Don't render Canvas until mounted (client-side only)
+  if (!isMounted) {
+    return (
+      <section ref={containerRef} className="relative min-h-screen bg-black">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <p className="text-white/50">Loading...</p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section ref={containerRef} className="relative min-h-screen bg-black">
@@ -494,7 +515,14 @@ export default function CinematicGlobe() {
         <Canvas
           camera={{ position: [0, 0, 3.5], fov: 45 }}
           dpr={[1, 2]}
-          gl={{ antialias: true, alpha: true }}
+          gl={{ 
+            antialias: true, 
+            alpha: true,
+            preserveDrawingBuffer: false 
+          }}
+          onCreated={(state) => {
+            state.gl.setClearColor('#000000', 0)
+          }}
         >
           <Suspense fallback={<GlobeLoader />}>
             {/* Lighting */}

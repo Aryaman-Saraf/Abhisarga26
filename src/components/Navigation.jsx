@@ -1,5 +1,7 @@
+'use client'
+
+import Link from "next/link"
 import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 
 const links = [
@@ -40,14 +42,14 @@ export default function Navigation() {
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <Link to="/" className="text-sm uppercase tracking-[0.6em] text-red-200 hover:text-white">
+        <Link href="/" className="text-sm uppercase tracking-[0.6em] text-red-200 hover:text-white">
           ABHISARGA'26
         </Link>
 
         <nav className="hidden items-center gap-6 text-xs uppercase tracking-[0.4em] md:flex">
           {links.map((link) => (
             link.isRoute ? (
-              <Link key={link.href} to={link.href} className="text-white/70 hover:text-white">
+              <Link key={link.href} href={link.href} className="text-white/70 hover:text-white">
                 {link.label}
               </Link>
             ) : (
@@ -78,7 +80,7 @@ export default function Navigation() {
             <div className="flex flex-col gap-4 text-xs uppercase tracking-[0.5em]">
               {links.map((link) => (
                 link.isRoute ? (
-                  <Link key={link.href} to={link.href} className="text-white/80" onClick={() => setOpen(false)}>
+                  <Link key={link.href} href={link.href} className="text-white/80" onClick={() => setOpen(false)}>
                     {link.label}
                   </Link>
                 ) : (
