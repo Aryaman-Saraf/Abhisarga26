@@ -1,5 +1,5 @@
-import { EventTimeline } from "../components/EventTimeline"
-import { eventTimelineData } from "../data/content"
+import EventTimeline from "../../src/components/EventTimeline"
+import { eventTimelineData } from "../../lib/content"
 
 export default function EventTimelineSection() {
   return (
