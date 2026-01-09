@@ -1,5 +1,7 @@
-import ContactPage from '../../src/views/ContactPage'
+import Contact from "../../components/Contact";
 
-export default function Contact() {
-  return <ContactPage />
+export default function ContactPage() {
+  return (
+    <Contact />
+  )
 }

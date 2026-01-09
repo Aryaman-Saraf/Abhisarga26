@@ -2,7 +2,7 @@
 
 import { motion, useScroll, useTransform } from "framer-motion"
 import { useEffect, useRef, useState } from "react"
-import { heroStats, upsideQuotes } from "../data/content"
+import { heroStats, upsideQuotes } from "../../lib/content"
 
 const glitchChars = "ABHISARGA0123456789ΔΛΞΨ∑#@$%*&"
 

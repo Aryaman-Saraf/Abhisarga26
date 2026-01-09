@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from "framer-motion"
-import { teamCategories } from "../data/content"
+import { teamCategories } from "../../lib/content"
 
 export default function Team() {
   return (

@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import dynamic from "next/dynamic"
 import { useState } from "react"
-import ContactCardsSection from "../components/ContactCardsSection"
+import ContactCardsSection from "../ContactCardsSection"
 import { Send } from "lucide-react"
 
 const CinematicGlobe = dynamic(() => import("../components/CinematicGlobe"), { ssr: false })

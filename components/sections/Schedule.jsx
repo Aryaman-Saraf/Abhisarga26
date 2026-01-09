@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from "framer-motion"
-import { scheduleTimeline } from "../data/content"
+import { scheduleTimeline } from "../../lib/content"
 
 export default function Schedule() {
   return (
