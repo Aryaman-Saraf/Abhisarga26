@@ -106,8 +106,6 @@ export default function GuildMap() {
   const handleLocateMe = () => {
     setLocating(true)
     
-    console.log("🔍 Starting location detection...")
-    
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser. Please select a city or click on the map.")
       setLocating(false)
@@ -121,23 +119,17 @@ export default function GuildMap() {
       maximumAge: 0
     }
     
-    console.log("📍 Requesting high accuracy location...")
-    
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude, accuracy } = position.coords
-        console.log(`✅ Location detected: ${latitude}, ${longitude} (±${accuracy}m)`)
         setUserPos([latitude, longitude])
         setLocationAccuracy(Math.round(accuracy))
         setLocating(false)
         setSelectedCity("")
       },
       (error) => {
-        console.error("❌ High accuracy failed:", error.message, "Code:", error.code)
-        
         // If high accuracy fails, try with low accuracy as fallback
         if (error.code === error.TIMEOUT || error.code === error.POSITION_UNAVAILABLE) {
-          console.log("⚡ Trying low accuracy fallback...")
           
           const lowAccuracyOptions = {
             enableHighAccuracy: false,
@@ -148,14 +140,12 @@ export default function GuildMap() {
           navigator.geolocation.getCurrentPosition(
             (position) => {
               const { latitude, longitude, accuracy } = position.coords
-              console.log(`✅ Location detected (low accuracy): ${latitude}, ${longitude} (±${accuracy}m)`)
               setUserPos([latitude, longitude])
               setLocationAccuracy(Math.round(accuracy))
               setLocating(false)
               setSelectedCity("")
             },
             (fallbackError) => {
-              console.error("❌ Low accuracy also failed:", fallbackError.message)
               showError(fallbackError)
             },
             lowAccuracyOptions

@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from "framer-motion"
-import { sponsorTiers } from "../data/content"
+import { sponsorTiers } from "../../lib/content"
 
 export default function Sponsors() {
   return (

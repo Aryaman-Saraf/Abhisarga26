@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from "framer-motion"
-import { eventCategories } from "../data/content"
+import { eventCategories } from "../../lib/content"
 
 export default function Events() {
   return (

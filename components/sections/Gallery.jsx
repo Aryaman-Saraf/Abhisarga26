@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { galleryImages } from "../data/content"
+import { galleryImages } from "../../lib/content"
 
 export default function Gallery() {
   const [active, setActive] = useState(null)

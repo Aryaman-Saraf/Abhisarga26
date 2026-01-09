@@ -1,11 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import IntroVideo from '../src/components/IntroVideo'
-import SmoothScroll from '../src/components/SmoothScroll'
-import Navigation from '../src/components/Navigation'
-import Footer from '../src/sections/Footer'
-import Oneko from '../src/components/Oneko'
+import IntroVideo from '../components/IntroVideo'
+import SmoothScroll from '../components/SmoothScroll'
+import Navigation from '../components/Navigation'
+import Footer from '../components/sections/Footer'
+import Oneko from '../components/Oneko'
 
 const INTRO_KEY = 'abhisarga_intro_timestamp'
 const INTRO_COOLDOWN = 100000 * 60 // same cooldown as Vite app
