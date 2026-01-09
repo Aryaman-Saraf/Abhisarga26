@@ -1,300 +1,183 @@
+# Abhisarga 26 - Upside Down
 
+A dark, cinematic website for Abhisarga 26, featuring immersive animations, parallax scrolling, and a Stranger Things-inspired "Upside Down" aesthetic.
 
-## ✨ Highlights## Features
+![Abhisarga 26](https://img.shields.io/badge/Abhisarga-26-red?style=for-the-badge)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
+![React](https://img.shields.io/badge/React-19-blue?style=flat-square&logo=react)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-cyan?style=flat-square&logo=tailwind-css)
 
+## ✨ Features
 
-
-- 🎞️ **Immersive intro video** with timestamp-based skip logic and localStorage cooldowns- 🎬 **Intro Video System** - Timestamp-based playback with localStorage persistence
-
-- 🌀 **Layered parallax & smooth scrolling** powered by Framer Motion transforms + Lenis- 🎨 **Dark Cinematic Theme** - Deep blacks, dark reds, muted purples with glitch effects
-
-- 🔦 **Glitch typography + neon UI** using Cinzel Decorative, VT323, and custom gradients- ✨ **Smooth Animations** - Framer Motion scroll-based reveals and micro-interactions
-
-- 🧭 **Single-page portal** with hero, about, events, schedule, sponsors, team, gallery, footer- 📱 **Fully Responsive** - Optimized for mobile, tablet, and desktop
-
-- 📱 **Responsive + accessible** layout, mobile drawer nav, focus-friendly buttons- ♿ **Accessible** - Reduced-motion support and proper ARIA labels
-
+- 🎬 **Immersive Intro Video** - Timestamp-based playback with localStorage persistence and skip logic
+- 🌀 **Layered Parallax & Smooth Scrolling** - Powered by Framer Motion transforms and Lenis
+- 🎨 **Dark Cinematic Theme** - Deep blacks, crimson accents, muted purples with glitch effects
+- 🔦 **Glitch Typography & Neon UI** - Cinzel Decorative, VT323 fonts with custom gradients
+- ✨ **Smooth Animations** - Framer Motion scroll-based reveals and micro-interactions
+- 🧭 **Single-Page Portal** - Hero, About, Events, Schedule, Sponsors, Team, Gallery, Footer sections
+- 📱 **Fully Responsive** - Optimized for mobile, tablet, and desktop
+- ♿ **Accessible** - Reduced-motion support and proper ARIA labels
+- 🎮 **Interactive Elements** - 3D contact cards, Oneko cat follower, cinematic globe
 
 ## 🚀 Getting Started
 
-## Local Setup
-
 ### Prerequisites
 
-### Prerequisites
-
-- Node.js **20.19+** (Vite's React plugin warns below this; 20.16 still works with a warning)
-
-- npm 10+- Node.js 18.x or higher
-
-- npm, yarn, or pnpm
-
-### Install & run
+- **Node.js 18.x or higher** (20.19+ recommended for Vite compatibility)
+- **npm**, **yarn**, or **pnpm**
 
 ### Installation
 
-```bash
+1. **Clone or download the project**
+   ```bash
+   git clone https://github.com/gautam-ch/Abhisarga26.git
+   cd Abhisarga26
+   ```
 
-npm install1. **Clone or download the project**
-
-npm run dev
-
-# visit http://localhost:51732. **Install dependencies**
-
-```   \`\`\`bash
-
+2. **Install dependencies**
+   ```bash
    npm install
-
-### Production build   # or
-
+   # or
    yarn install
-
-```bash   # or
-
-npm run build   pnpm install
-
-npm run preview   \`\`\`
-
-```
+   # or
+   pnpm install
+   ```
 
 3. **Run the development server**
-
-The production artifacts live in `dist/` and can be served by any static host (Vercel, Netlify, GitHub Pages, etc.).   \`\`\`bash
-
+   ```bash
    npm run dev
-
-## 🎬 Customizing the Intro Video   # or
-
+   # or
    yarn dev
-
-1. Drop your file inside `public/video/` (e.g. `public/video/abhisarga-intro.mp4`).   # or
-
-2. Update the `<source>` path inside `src/components/IntroVideo.jsx` if you change the filename.   pnpm dev
-
-3. Adjust `VIDEO_DURATION` (ms) when your clip is longer/shorter so the fallback timeout matches playback.   \`\`\`
-
-4. Clear `localStorage` key `abhisarga_intro_timestamp` to replay the intro while testing.
+   # or
+   pnpm dev
+   ```
 
 4. **Open in browser**
 
-## 📝 Updating Content   
-
    Navigate to [http://localhost:3000](http://localhost:3000)
 
-All copy + data live in `src/data/content.js`:
+### Production Build
 
-## Adding Your Own Intro Video
+```bash
+npm run build
+npm run start
+# or
+npm run preview
+```
 
-- `heroStats`, `upsideQuotes`
+The production artifacts live in `dist/` and can be served by any static host (Vercel, Netlify, GitHub Pages, etc.).
 
-- `eventCategories`, `scheduleTimeline`The intro video is a key feature that plays on the first visit. Here's how to add your own video:
+## 🎬 Adding Your Own Intro Video
 
-- `sponsorTiers`, `teamCategories`, `galleryImages`
+The intro video is a key feature that plays on the first visit. Here's how to customize it:
 
 ### Step 1: Add Your Video File
 
-Media assets belong in `public/` (e.g. `public/gallery`, `public/video`). Every section reads from that data file, so tweaking content only requires editing JavaScript arrays.
+1. Place your video file in the `public/video/` directory
+2. Supported formats: `.mp4`, `.webm`, `.mov`
+3. Recommended: Use MP4 format for best browser compatibility
+4. Example: `public/video/abhisarga-intro.mp4`
 
-1. Place your video file in the `public/videos/` directory
+### Step 2: Update the Video Path
 
-```2. Supported formats: `.mp4`, `.webm`, `.mov`
+Open `components/IntroVideo.jsx` and update the video source:
 
-src/3. Recommended: Use MP4 format for best browser compatibility
+```jsx
+// Find this line (around line 65)
+<source src="/video/intro.mp4" type="video/mp4" />
 
-├── App.jsx4. Example: `public/videos/abhisarga-intro.mp4`
-
-├── components/
-
-│   ├── IntroVideo.jsx### Step 2: Update the Video Path
-
-│   ├── Navigation.jsx
-
-│   ├── PortalPulse.jsxOpen `components/intro-video.tsx` and update the video source:
-
-│   └── SmoothScroll.jsx
-
-├── data/content.js\`\`\`tsx
-
-├── sections/// Find this line (around line 65)
-
-│   ├── About.jsx<source src="/videos/intro.mp4" type="video/mp4" />
-
-│   ├── Events.jsx
-
-│   ├── Footer.jsx// Change to your video filename
-
-│   ├── Gallery.jsx<source src="/videos/abhisarga-intro.mp4" type="video/mp4" />
-
-│   ├── Hero.jsx\`\`\`
-
-│   ├── Schedule.jsx
-
-│   ├── Sponsors.jsx### Step 3: Adjust Video Duration (Optional)
-
-│   └── Team.jsx
-
-└── styles/global.cssIf your video is longer or shorter than 30 seconds, update the duration:
-
+// Change to your video filename
+<source src="/video/abhisarga-intro.mp4" type="video/mp4" />
 ```
 
-\`\`\`tsx
+### Step 3: Adjust Video Duration (Optional)
 
-## 🎨 Theme Notes// Find this constant (around line 10)
+If your video is longer or shorter than the default, update the duration constant:
 
+```jsx
+// Find this constant (around line 10)
 const VIDEO_DURATION = 30000; // 30 seconds in milliseconds
 
-- Typography: **Cinzel Decorative** (titles), **Space Grotesk** (body), **VT323** (glitch text)
-
-- Palette: deep blacks, crimson accents, muted violets, static overlays, portal gradients// Change to match your video length
-
-- Motion: Framer Motion parallax transforms, scroll-linked hero layers, Lenis easing, staggered revealsconst VIDEO_DURATION = 45000; // 45 seconds example
-
-\`\`\`
-
-## 🧪 Tips & Troubleshooting
+// Change to match your video length
+const VIDEO_DURATION = 45000; // 45 seconds example
+```
 
 ### Step 4: Test the Intro Video
 
-- **Node warning**: Vite’s React plugin prefers Node ≥20.19. Upgrade Node to silence the warning.
-
-- **Intro muted autoplay**: Some browsers block audio. We auto fallback to muted playback and unmute on the first interaction.1. Clear your browser's localStorage (to reset the "viewed" state)
-
-- **Laggy scroll**: Temporarily return children directly in `SmoothScroll.jsx` to disable Lenis while debugging.   - Open DevTools (F12)
-
-- **Images not showing**: Ensure they live in `public/` and reference them with absolute paths (`/gallery/...`).   - Go to Application > Local Storage
-
-   - Delete the `abhisarga_intro_viewed` key
-
-## 📄 License & Credits2. Refresh the page - your video should play
-
+1. Clear your browser's localStorage (to reset the "viewed" state)
+   - Open DevTools (F12)
+   - Go to Application > Local Storage
+   - Delete the `abhisarga_intro_timestamp` key
+2. Refresh the page - your video should play
 3. The intro will only show once per 2-minute window
 
-- MIT License – remix freely for your fest.
+## 📝 Updating Content
 
-- Theme inspiration: Stranger Things “Upside Down”.## Customization Guide
+All copy and data live in `lib/content.js`. Every section reads from that data file, so tweaking content only requires editing JavaScript arrays/objects.
 
-- Built with React, Tailwind CSS, Framer Motion, and Lenis.
+### Key Data Files:
 
-### Update Event Data
+- `heroStats`, `upsideQuotes` - Hero section statistics and quotes
+- `eventCategories`, `scheduleTimeline` - Events and schedule data
+- `sponsorTiers` - Sponsor information
+- `teamCategories` - Team member data
+- `galleryImages` - Gallery photos
 
-Edit event information in `components/events.tsx`:
+## 🎨 Theme & Design
 
-\`\`\`tsx
-const eventCategories = [
-  {
-    title: "Technical Events",
-    events: [
-      {
-        title: "Your Event Name",
-        description: "Event description",
-        date: "Mar 15, 2025",
-        // ... other fields
-      }
-    ]
-  }
-]
-\`\`\`
+- **Typography**: Cinzel Decorative (titles), Space Grotesk (body), VT323 (glitch text)
+- **Palette**: Deep blacks, crimson accents, muted violets, static overlays, portal gradients
+- **Motion**: Framer Motion parallax transforms, scroll-linked hero layers, Lenis easing, staggered reveals
 
-### Update Schedule
+## 🏗️ Project Structure
 
-Modify the timeline in `components/schedule.tsx`:
-
-\`\`\`tsx
-const scheduleData = [
-  {
-    day: "Day 1",
-    date: "March 15, 2025",
-    events: [
-      { time: "10:00 AM", title: "Opening Ceremony", venue: "Main Stage" }
-    ]
-  }
-]
-\`\`\`
-
-### Update Team Members
-
-Edit team data in `components/team.tsx`:
-
-\`\`\`tsx
-const teamMembers = [
-  {
-    name: "Team Member Name",
-    role: "Position",
-    image: "/team/member.jpg",
-    // ... social links
-  }
-]
-\`\`\`
-
-### Add Sponsor Logos
-
-1. Place sponsor logos in `public/sponsors/`
-2. Update `components/sponsors.tsx`:
-
-\`\`\`tsx
-const sponsors = {
-  platinum: ["/sponsors/platinum-sponsor-1.png"],
-  gold: ["/sponsors/gold-sponsor-1.png"],
-  // ... other tiers
-}
-\`\`\`
-
-### Update Gallery Images
-
-Add images in `components/gallery.tsx`:
-
-\`\`\`tsx
-const galleryImages = [
-  { src: "/gallery/image1.jpg", alt: "Description" },
-  // ... more images
-]
-\`\`\`
-
-## Project Structure
-
-\`\`\`
-abhisarga-website/
+```
+abhisarga-upside-down/
 ├── app/
-│   ├── layout.tsx          # Root layout with fonts
-│   ├── page.tsx            # Main page component
-│   └── globals.css         # Global styles and theme
+│   ├── ClientShell.jsx      # Client-side shell component
+│   ├── ErrorBoundary.jsx    # Error boundary wrapper
+│   ├── globals.css          # Global styles and theme
+│   ├── layout.jsx           # Root layout with fonts
+│   ├── page.jsx             # Main page component
+│   └── contact/
+│       └── page.jsx         # Contact page
 ├── components/
-│   ├── intro-video.tsx     # Intro video with logic
-│   ├── navbar.tsx          # Navigation bar
-│   ├── hero.tsx            # Hero section
-│   ├── about.tsx           # About section
-│   ├── events.tsx          # Events section
-│   ├── schedule.tsx        # Schedule timeline
-│   ├── sponsors.tsx        # Sponsors section
-│   ├── team.tsx            # Team section
-│   ├── gallery.tsx         # Gallery with lightbox
-│   └── footer.tsx          # Footer section
+│   ├── CinematicGlobe.jsx   # 3D globe component
+│   ├── Contact.jsx          # Contact form
+│   ├── ContactCard.jsx      # 3D contact cards
+│   ├── ContactCards3D.css   # Contact cards styles
+│   ├── ContactCardsSection.jsx # Contact cards section
+│   ├── ContactNew.jsx       # New contact component
+│   ├── GuildMap.jsx         # Guild map component
+│   ├── IntroVideo.jsx       # Intro video with logic
+│   ├── Navigation.jsx       # Navigation bar
+│   ├── Oneko.jsx            # Oneko cat follower
+│   ├── PortalHeader.jsx     # Portal header
+│   ├── PortalPulse.jsx      # Portal pulse effect
+│   ├── RiftMap.jsx          # Rift map component
+│   ├── SmoothScroll.jsx     # Smooth scrolling wrapper
+│   └── sections/
+│       ├── About.jsx        # About section
+│       ├── ContactNew.jsx   # Contact section
+│       ├── Events.jsx       # Events section
+│       ├── Footer.jsx       # Footer section
+│       ├── Gallery.jsx      # Gallery with lightbox
+│       ├── Hero.jsx         # Hero section
+│       ├── Schedule.jsx     # Schedule timeline
+│       ├── Sponsors.jsx     # Sponsors section
+│       └── Team.jsx         # Team section
+├── lib/
+│   └── content.js           # All site content and data
 ├── public/
-│   ├── videos/             # Place intro video here
-│   ├── sponsors/           # Sponsor logos
-│   ├── team/               # Team member photos
-│   └── gallery/            # Gallery images
-└── README.md               # This file
-\`\`\`
+│   ├── characters/
+│   │   └── oneko/
+│   │       └── oneko.js     # Oneko cat script
+│   ├── textures/            # 3D textures
+│   └── video/               # Intro video files
+└── README.md                # This file
+```
 
-## Environment Variables (Optional)
-
-If you want to add analytics or other integrations, create a `.env.local` file:
-
-\`\`\`env
-# Example environment variables
-NEXT_PUBLIC_SITE_URL=https://abhisarga-iiits.in
-NEXT_PUBLIC_ANALYTICS_ID=your-analytics-id
-\`\`\`
-
-## Building for Production
-
-\`\`\`bash
-npm run build
-npm start
-\`\`\`
-
-## Deployment
+## 🚀 Deployment
 
 ### Deploy to Vercel (Recommended)
 
@@ -306,48 +189,47 @@ npm start
 ### Other Platforms
 
 The project can be deployed to any platform supporting Next.js:
-- Netlify
-- AWS Amplify
-- Railway
-- DigitalOcean App Platform
+- **Netlify**
+- **AWS Amplify**
+- **Railway**
+- **DigitalOcean App Platform**
 
-## Troubleshooting
+## 🧪 Troubleshooting
 
-### Intro Video Not Playing
+### Intro Video Issues
+- **Not playing**: Check that video file exists in `public/video/` and format is MP4/WebM
+- **Audio blocked**: Browsers block autoplay audio; video falls back to muted and unmutes on interaction
+- **Reset viewed state**: Clear `abhisarga_intro_timestamp` from localStorage
 
-- Check that video file exists in `public/videos/`
-- Verify video format is MP4 or WebM
-- Clear localStorage and refresh page
-- Check browser console for errors
+### Performance Issues
+- **Laggy scroll**: Temporarily disable Lenis in `SmoothScroll.jsx` for debugging
+- **Heavy animations**: Check for reduced-motion preferences
 
-### Animations Not Working
+### Asset Loading
+- **Images not showing**: Ensure files are in `public/` and paths start with `/`
+- **Video not loading**: Verify file format and path in `IntroVideo.jsx`
 
-- Ensure `framer-motion` is installed
-- Check that JavaScript is enabled
-- Try clearing browser cache
+### Build Issues
+- **Node version warning**: Upgrade to Node.js 20.19+ to silence Vite warnings
+- **Dependencies**: Run `npm install` to ensure all packages are installed
 
-### Images Not Loading
+## 🌐 Browser Support
 
-- Verify image paths are correct (relative to `public/` folder)
-- Check image file extensions match imports
-- Ensure images are optimized and not too large
+- ✅ Chrome/Edge (latest)
+- ✅ Firefox (latest)
+- ✅ Safari (latest)
+- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
 
-## Browser Support
+## 📄 License
 
-- Chrome/Edge (latest)
-- Firefox (latest)
-- Safari (latest)
-- Mobile browsers (iOS Safari, Chrome Mobile)
+**MIT License** - Remix freely for your fest!
 
-## License
+Built with ❤️ using Next.js, Tailwind CSS, Framer Motion, Three.js, and Lenis.
 
-MIT License - feel free to use for your fest!
+Theme inspiration: Stranger Things "Upside Down" aesthetic.
 
-## Credits
+## 📞 Support
 
-Built with Next.js, Tailwind CSS, and Framer Motion.
-Theme inspired by Stranger Things "UPSIDE DOWN" aesthetic.
+For issues or questions, contact the Abhisarga tech team or create an issue on GitHub.
 
-## Support
-
-For issues or questions, contact the Abhisarga tech team.
+---
