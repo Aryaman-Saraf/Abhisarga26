@@ -24,6 +24,7 @@ export const EventTimeline = ({ events, className = '' }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [visibleStart, setVisibleStart] = useState(0);
+  const [selectedDate, setSelectedDate] = useState(null);
   const [isHoveringTimeline, setIsHoveringTimeline] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isGrabbing, setIsGrabbing] = useState(false);
@@ -37,11 +38,69 @@ export const EventTimeline = ({ events, className = '' }) => {
 
   const visibleEvents = events.slice(visibleStart, visibleStart + windowSize);
 
+  // Get unique dates from all events
+  const uniqueDates = [...new Set(events.map(event => event.date))];
+
   // Motion value for horizontal position
   const x = useMotionValue(0);
 
+  // Motion value for scrollbar handle
+  const handleX = useMotionValue(0);
+  const [isDraggingScrollbar, setIsDraggingScrollbar] = useState(false);
+
+  // Calculate dynamic scrollbar dimensions based on number of cards
+  const cardsPerScrollbarUnit = 1; // Each card gets 1 unit of scrollbar space
+  const scrollbarWidth = Math.max(320, events.length * 60); // Minimum 320px, 60px per card
+  const handleWidthPercent = Math.max(10, Math.min(25, 100 / Math.max(1, events.length))); // Handle width as percentage
+  const maxHandlePosition = scrollbarWidth - (scrollbarWidth * handleWidthPercent / 100);
+
+  // Sync handle position with timeline position
+  useEffect(() => {
+    if (scrollDistance === 0) return; // Avoid division by zero
+
+    const unsubscribeX = x.onChange((value) => {
+      if (isDraggingScrollbar) return; // Don't update handle while dragging
+      // Convert current card index to handle position (0 to maxHandlePosition)
+      const totalCards = events.length;
+      const progress = selectedIndex / (totalCards - 1);
+      handleX.set(Math.max(0, Math.min(maxHandlePosition, progress * maxHandlePosition)));
+    });
+
+    const unsubscribeHandle = handleX.onChange((value) => {
+      if (!isDraggingScrollbar) return; // Only update x while dragging
+
+      // Direct card-based mapping: each position on scrollbar corresponds to a card
+      const totalCards = events.length;
+      const cardIndex = Math.round((value / maxHandlePosition) * (totalCards - 1));
+
+      // Ensure card index is within bounds
+      const clampedIndex = Math.max(0, Math.min(totalCards - 1, cardIndex));
+      setSelectedIndex(clampedIndex);
+
+      // Calculate position to center the selected card
+      if (scrollDistance < 0) {
+        // Calculate proportional position: card index determines how far to scroll
+        const progress = clampedIndex / (events.length - 1);
+        const targetX = scrollDistance * progress;
+        x.set(targetX);
+      }
+    });
+
+    return () => {
+      unsubscribeX();
+      unsubscribeHandle();
+    };
+  }, [x, handleX, scrollDistance, isDraggingScrollbar, maxHandlePosition, events.length, selectedIndex]);
+
   // Get active card based on center position (card visually in front)
-  const activeIndex = useActiveCard(containerRef, cardRefs, events.length, x);
+  const activeIndex = useActiveCard(cardRefs, events.length, x);
+
+  // Initialize selectedDate to the first event's date
+  useEffect(() => {
+    if (events.length > 0 && selectedDate === null) {
+      setSelectedDate(events[0].date);
+    }
+  }, [events, selectedDate]);
 
   // Keep selectedIndex in sync with whichever card is visually in front
   useEffect(() => {
@@ -65,21 +124,23 @@ export const EventTimeline = ({ events, className = '' }) => {
     }
 
     // On desktop, animate the timeline to center that card
-    if (!trackRef.current) return;
+    if (scrollDistance < 0) {
+      // Calculate proportional position: card index determines how far to scroll
+      const progress = index / (events.length - 1);
+      const targetX = scrollDistance * progress;
+      x.set(targetX);
+    }
+  };
 
-    const trackWidth = trackRef.current.scrollWidth;
-    const viewportWidth = window.innerWidth;
-    const totalScrollableWidth = trackWidth - viewportWidth + 100;
+  const handleJumpToDate = (date) => {
+    // Set the selected date
+    setSelectedDate(date);
 
-    // Calculate the position to center the selected card
-    const cardWidth = 400; // Approximate card width
-    const spacing = 16; // Gap between cards
-    const cardPosition = index * (cardWidth + spacing);
-    const centerOffset = viewportWidth / 2 - cardWidth / 2;
-
-    const targetX = -Math.min(Math.max(0, cardPosition - centerOffset), totalScrollableWidth);
-
-    x.set(targetX);
+    // Find the first event with this date
+    const firstEventIndex = events.findIndex(event => event.date === date);
+    if (firstEventIndex !== -1) {
+      handleJumpToIndex(firstEventIndex);
+    }
   };
 
   // Detect mobile
@@ -160,10 +221,11 @@ export const EventTimeline = ({ events, className = '' }) => {
     return () => window.removeEventListener('resize', calculateDistance);
   }, [events.length, isMobile]);
 
-  // Smooth spring for horizontal movement
+  // Smooth spring for horizontal movement with enhanced fluidity
   const smoothX = useSpring(x, {
-    stiffness: 100,
-    damping: 30,
+    stiffness: 120,
+    damping: 25,
+    mass: 0.8,
     restDelta: 0.001,
   });
 
@@ -176,12 +238,12 @@ export const EventTimeline = ({ events, className = '' }) => {
         {/* Header */}
         <div className="relative z-20 pt-16 pb-8 px-6 text-center space-y-4">
           <motion.h1
-            className="st-title text-3xl md:text-4xl font-bold text-white st-flicker"
+            className="st-title text-2xl md:text-3xl font-bold mb-3 text-white st-glow"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            Event Timeline
+            Schedule
           </motion.h1>
           <motion.p
             className="text-white/60 text-sm max-w-md mx-auto"
@@ -192,63 +254,32 @@ export const EventTimeline = ({ events, className = '' }) => {
             Scroll through dates or tap to jump to an event
           </motion.p>
 
-          {/* Date timeline bar */}
+          {/* Date timeline bar - all unique dates */}
           <motion.div
-            className="mt-2 pb-2 flex items-center justify-center gap-2"
+            className="mt-2 pb-2 flex items-center justify-center"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            {/* Prev button */}
-            <button
-              type="button"
-              onClick={() => canGoPrev && setVisibleStart((prev) => Math.max(prev - 1, 0))}
-              disabled={!canGoPrev}
-              className={`flex items-center justify-center w-8 h-8 rounded-full border text-xs transition-all ${
-                canGoPrev
-                  ? 'border-red-500/60 text-red-400 hover:bg-red-500/20 hover:scale-105'
-                  : 'border-red-500/20 text-red-500/30 cursor-not-allowed'
-              }`}
-              aria-label="Previous dates"
-            >
-              ‹
-            </button>
-
-            {/* Date pills (max 7) */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-black/60 px-3 py-2">
-              {visibleEvents.map((event, offsetIndex) => {
-                const index = visibleStart + offsetIndex;
+            <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-black/60 px-3 py-2 max-w-full overflow-x-auto">
+              {uniqueDates.map((date) => {
+                const isSelected = selectedDate === date;
                 return (
                   <button
-                    key={event.id}
+                    key={date}
                     type="button"
-                    onClick={() => handleJumpToIndex(index)}
-                    className={`relative rounded-full px-3 py-1 text-[0.7rem] md:text-xs uppercase tracking-[0.18em] transition-colors whitespace-nowrap ${
-                      index === selectedIndex
+                    onClick={() => handleJumpToDate(date)}
+                    className={`relative rounded-full px-3 py-1 text-[0.7rem] md:text-xs uppercase tracking-[0.18em] transition-colors whitespace-nowrap flex-shrink-0 ${
+                      isSelected
                         ? 'bg-red-500 text-black'
                         : 'bg-black/40 text-white/70 hover:bg-red-500/20 hover:text-white'
                     }`}
                   >
-                    {event.date}
+                    {date}
                   </button>
                 );
               })}
             </div>
-
-            {/* Next button */}
-            <button
-              type="button"
-              onClick={() => canGoNext && setVisibleStart((prev) => Math.min(prev + 1, maxStart))}
-              disabled={!canGoNext}
-              className={`flex items-center justify-center w-8 h-8 rounded-full border text-xs transition-all ${
-                canGoNext
-                  ? 'border-red-500/60 text-red-400 hover:bg-red-500/20 hover:scale-105'
-                  : 'border-red-500/20 text-red-500/30 cursor-not-allowed'
-              }`}
-              aria-label="Next dates"
-            >
-              ›
-            </button>
           </motion.div>
         </div>
 
@@ -285,18 +316,19 @@ export const EventTimeline = ({ events, className = '' }) => {
 
   // Desktop horizontal layout
   return (
-    <div
+    <motion.div
       ref={containerRef}
       className={`relative min-h-screen bg-[#030204] st-noise ${className}`}
       style={{ position: 'relative' }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
     >
       <FogOverlay />
       
       {/* Sticky container */}
       <div
-        className={`relative h-screen overflow-hidden flex flex-col justify-center select-none ${
-          isHoveringTimeline ? (isDragging || isGrabbing ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-default'
-        }`}
+        className="relative h-screen overflow-hidden flex flex-col justify-center select-none"
         onMouseEnter={() => setIsHoveringTimeline(true)}
         onMouseLeave={() => {
           setIsHoveringTimeline(false);
@@ -310,76 +342,41 @@ export const EventTimeline = ({ events, className = '' }) => {
         {/* Header */}
         <div className="relative z-20 text-center mb-8 px-6 space-y-4">
           <motion.h1
-            className="st-title text-4xl md:text-5xl lg:text-6xl font-bold text-white st-flicker"
+            className="st-title text-3xl md:text-4xl lg:text-5xl font-bold mb-3 text-white st-glow"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            Event Timeline
+            Schedule
           </motion.h1>
           
 
-          {/* Date timeline bar with ghost arrows */}
+          {/* Date timeline bar - all unique dates */}
           <motion.div
-            className="mt-6 pb-4 flex items-center justify-center gap-4"
+            className="mt-6 pb-4 flex items-center justify-center"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            {/* Left Arrow */}
-            <button
-              type="button"
-              onClick={() => canGoPrev && setVisibleStart((prev) => Math.max(prev - 1, 0))}
-              disabled={!canGoPrev}
-              className={`flex items-center justify-center w-12 h-12 rounded-full border border-red-500/40 bg-black/60 transition-all hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed ${
-                canGoPrev ? 'hover:scale-110' : ''
-              }`}
-              aria-label="Scroll dates left"
-            >
-              <img
-                src={ghosttImage}
-                alt="Left arrow"
-                className="w-6 h-6 transform rotate-180"
-              />
-            </button>
-
-            {/* Date pills (max 7) */}
-            <div className="inline-flex items-center gap-3 rounded-full border border-red-500/40 bg-black/60 px-4 py-2">
-              {visibleEvents.map((event, offsetIndex) => {
-                const index = visibleStart + offsetIndex;
+            <div className="inline-flex items-center gap-3 rounded-full border border-red-500/40 bg-black/60 px-4 py-2 max-w-full overflow-x-auto">
+              {uniqueDates.map((date) => {
+                const isSelected = selectedDate === date;
                 return (
                   <button
-                    key={event.id}
+                    key={date}
                     type="button"
-                    onClick={() => handleJumpToIndex(index)}
-                    className={`relative rounded-full px-4 py-1 text-xs md:text-sm uppercase tracking-[0.22em] transition-colors whitespace-nowrap ${
-                      index === selectedIndex
+                    onClick={() => handleJumpToDate(date)}
+                    className={`relative rounded-full px-4 py-1 text-xs md:text-sm uppercase tracking-[0.22em] transition-colors whitespace-nowrap flex-shrink-0 ${
+                      isSelected
                         ? 'bg-red-500 text-black scale-110'
                         : 'bg-black/40 text-white/70 hover:bg-red-500/20 hover:text-white'
                     }`}
                   >
-                    {event.date}
+                    {date}
                   </button>
                 );
               })}
             </div>
-
-            {/* Right Arrow */}
-            <button
-              type="button"
-              onClick={() => canGoNext && setVisibleStart((prev) => Math.min(prev + 1, maxStart))}
-              disabled={!canGoNext}
-              className={`flex items-center justify-center w-12 h-12 rounded-full border border-red-500/40 bg-black/60 transition-all hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed ${
-                canGoNext ? 'hover:scale-110' : ''
-              }`}
-              aria-label="Scroll dates right"
-            >
-              <img
-                src={ghosttImage}
-                alt="Right arrow"
-                className="w-6 h-6"
-              />
-            </button>
           </motion.div>
         </div>
 
@@ -393,7 +390,7 @@ export const EventTimeline = ({ events, className = '' }) => {
             <div key={event.id} className="flex items-center">
               <TimelineConnector
                 index={index}
-                isActive={index === selectedIndex}
+                isActive={index === activeIndex}
                 isPast={index < selectedIndex}
                 isLast={index === events.length - 1}
               />
@@ -401,7 +398,7 @@ export const EventTimeline = ({ events, className = '' }) => {
                 ref={(el) => (cardRefs.current[index] = el)}
                 event={event}
                 index={index}
-                isActive={index === selectedIndex}
+                isActive={index === activeIndex}
                 isPast={index < selectedIndex}
                 isFuture={index > selectedIndex}
               />
@@ -425,34 +422,30 @@ export const EventTimeline = ({ events, className = '' }) => {
                 const newX = Math.max(scrollDistance, currentX + 200); // Scroll left (positive = right movement)
                 x.set(newX);
               }}
-              className="flex items-center justify-center w-8 h-8 rounded-full border border-red-500/40 bg-black/60 hover:bg-red-500/20 transition-all hover:scale-110"
+              className="flex items-center justify-center w-8 h-8 rounded-full border border-red-500/40 bg-black/60 hover:bg-red-500/20 transition-all hover:scale-110 text-red-400 text-lg font-bold"
               aria-label="Scroll timeline left"
             >
-              <img
-                src={ghosttImage}
-                alt="Scroll left"
-                className="w-4 h-4 transform rotate-180"
-              />
+              ‹
             </button>
 
             {/* Scrollbar Track */}
-            <div className="relative w-64 h-2 bg-black/40 rounded-full overflow-hidden">
+            <div
+              className="relative h-2 bg-black/40 rounded-full overflow-hidden"
+              style={{ width: `${scrollbarWidth}px` }}
+            >
               <motion.div
                 className="absolute top-0 left-0 h-full bg-gradient-to-r from-red-500/60 to-red-600 rounded-full cursor-pointer"
                 style={{
-                  width: '20%',
-                  x: useTransform(x, [scrollDistance, 0], ['0%', '80%'])
+                  width: `${handleWidthPercent}%`,
+                  x: handleX
                 }}
                 drag="x"
-                dragConstraints={{ left: 0, right: 204 }} // 80% of 256px (w-64)
+                dragConstraints={{ left: 0, right: maxHandlePosition }}
                 dragElastic={0}
-                onDrag={(_, info) => {
-                  const trackWidth = 256;
-                  const progress = info.point.x / trackWidth;
-                  const newX = scrollDistance + (progress * -scrollDistance);
-                  x.set(Math.max(scrollDistance, Math.min(0, newX)));
-                }}
+                dragMomentum={false}
                 whileDrag={{ scale: 1.1 }}
+                onDragStart={() => setIsDraggingScrollbar(true)}
+                onDragEnd={() => setIsDraggingScrollbar(false)}
               />
             </div>
 
@@ -464,19 +457,15 @@ export const EventTimeline = ({ events, className = '' }) => {
                 const newX = Math.max(scrollDistance, currentX - 200); // Scroll right (negative = left movement)
                 x.set(newX);
               }}
-              className="flex items-center justify-center w-8 h-8 rounded-full border border-red-500/40 bg-black/60 hover:bg-red-500/20 transition-all hover:scale-110"
+              className="flex items-center justify-center w-8 h-8 rounded-full border border-red-500/40 bg-black/60 hover:bg-red-500/20 transition-all hover:scale-110 text-red-400 text-lg font-bold"
               aria-label="Scroll timeline right"
             >
-              <img
-                src={ghosttImage}
-                alt="Scroll right"
-                className="w-4 h-4"
-              />
+              ›
             </button>
           </div>
         </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

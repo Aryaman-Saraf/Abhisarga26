@@ -61,17 +61,20 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
   const cardVariants = {
     hidden: {
       opacity: 0,
-      y: 40,
-      scale: 0.95,
+      y: 50,
+      scale: 0.9,
+      filter: 'blur(10px)',
     },
     visible: {
       opacity: 1,
       y: 0,
       scale: 1,
+      filter: 'blur(0px)',
       transition: {
-        duration: 0.6,
-        delay: index * 0.12,
-        ease: [0.16, 1, 0.3, 1],
+        duration: 0.8,
+        delay: index * 0.08,
+        ease: [0.25, 0.46, 0.45, 0.94], // Custom easing for smoother animation
+        staggerChildren: 0.1,
       },
     },
   };
@@ -90,16 +93,18 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
       variants={cardVariants}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-10%" }}
+      viewport={{ once: true, margin: "-20%" }}
       className={`
         relative flex-shrink-0 w-[280px] md:w-[320px] lg:w-[380px]
-        transition-all duration-500 ease-out
+        transition-all duration-700 ease-out
         ${isActive ? 'scale-105 z-20' : 'scale-100 z-10'}
         ${isPast ? 'opacity-60' : ''}
         ${isFuture && !isActive ? 'opacity-70 blur-[1px]' : ''}
       `}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      layout
+      layoutId={`card-${index}`}
     >
       {/* Demogorgon Hands for Active Card (only when not hovered) */}
       <AnimatePresence>
@@ -202,16 +207,17 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
           relative p-6 md:p-8
           bg-black/60 backdrop-blur-sm
           border border-red-500/30
-          transition-all duration-300
+          transition-all duration-500 ease-out
           ${isActive ? 'st-card-glow-active border-red-500/60' : 'st-card-glow'}
           hover:border-red-500/50 hover:bg-black/80
           group cursor-default
           overflow-hidden
         `}
-        whileHover={{ 
+        whileHover={{
           scale: isActive ? 1 : 1.03,
-          transition: { duration: 0.2 }
+          transition: { duration: 0.3, ease: "easeOut" }
         }}
+        layout
       >
         {/* Date badge */}
         <div className="mb-4">

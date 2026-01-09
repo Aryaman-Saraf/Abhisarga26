@@ -2,33 +2,47 @@
 
 import { useState, useEffect } from 'react';
 
-export const useActiveCard = (containerRef, cardRefs, totalCards, xMotionValue = null) => {
+export const useActiveCard = (cardRefs, totalCards, xMotionValue = null) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const updateActiveCard = () => {
-      if (!containerRef.current || !cardRefs.current) return;
+      if (!cardRefs.current) return;
 
-      const containerRect = containerRef.current.getBoundingClientRect();
-      const centerX = containerRect.left + containerRect.width / 2;
+      // Use viewport center - cards are centered in the viewport
+      const viewportCenterX = window.innerWidth / 2;
 
-      let closestIndex = 0;
-      let closestDistance = Infinity;
+      let bestIndex = 0;
+      let bestScore = -Infinity;
 
       cardRefs.current.forEach((card, index) => {
         if (!card) return;
 
         const cardRect = card.getBoundingClientRect();
-        const cardCenterX = cardRect.left + cardRect.width / 2;
-        const distance = Math.abs(cardCenterX - centerX);
+        const cardLeft = cardRect.left;
+        const cardRight = cardRect.right;
+        const cardCenter = cardRect.left + cardRect.width / 2;
 
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestIndex = index;
+        // Calculate how much of the card is visible in the center region
+        // Center region is defined as viewportCenterX ± (cardWidth/2)
+        const centerRegionLeft = viewportCenterX - cardRect.width / 2;
+        const centerRegionRight = viewportCenterX + cardRect.width / 2;
+
+        const visibleLeft = Math.max(cardLeft, centerRegionLeft);
+        const visibleRight = Math.min(cardRight, centerRegionRight);
+        const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+
+        // Score based on how centered the card is
+        const distanceFromCenter = Math.abs(cardCenter - viewportCenterX);
+        const score = visibleWidth / cardRect.width - distanceFromCenter / window.innerWidth;
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestIndex = index;
         }
       });
 
-      setActiveIndex(closestIndex);
+      setActiveIndex(bestIndex);
     };
 
     // Initial check
@@ -64,7 +78,7 @@ export const useActiveCard = (containerRef, cardRefs, totalCards, xMotionValue =
       if (motionRafId) cancelAnimationFrame(motionRafId);
       if (unsubscribeMotion) unsubscribeMotion();
     };
-  }, [containerRef, cardRefs, totalCards, xMotionValue]);
+  }, [cardRefs, totalCards, xMotionValue]);
 
   return activeIndex;
 };
