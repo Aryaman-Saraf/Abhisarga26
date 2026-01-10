@@ -85,7 +85,7 @@ export default function Hero() {
             Enter the Rift
           </a>
           <a
-            href="#schedule"
+            href="#event-timeline"
             className="inline-flex items-center justify-center border border-white/20 px-10 py-4 text-xs uppercase tracking-[0.4em] text-white/80 transition hover:border-white/60 hover:text-white"
           >
             View Schedule
