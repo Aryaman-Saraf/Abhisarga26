@@ -77,11 +77,6 @@ export const EventTimeline = ({ events, className = '' }) => {
       const clampedIndex = Math.max(0, Math.min(totalCards - 1, cardIndex));
       setSelectedIndex(clampedIndex);
 
-      // Update selected date to match the selected card
-      if (events[clampedIndex]) {
-        setSelectedDate(events[clampedIndex].date);
-      }
-
       // Calculate position to center the selected card
       if (scrollDistance < 0) {
         // Calculate proportional position: card index determines how far to scroll
@@ -111,12 +106,7 @@ export const EventTimeline = ({ events, className = '' }) => {
   useEffect(() => {
     if (!events.length) return;
     setSelectedIndex(activeIndex);
-
-    // Update selected date to match the active card
-    if (events[activeIndex]) {
-      setSelectedDate(events[activeIndex].date);
-    }
-  }, [activeIndex, events]);
+  }, [activeIndex, events.length]);
 
   const handleJumpToIndex = (index) => {
     if (!events.length) return;
@@ -150,11 +140,6 @@ export const EventTimeline = ({ events, className = '' }) => {
     const firstEventIndex = events.findIndex(event => event.date === date);
     if (firstEventIndex !== -1) {
       handleJumpToIndex(firstEventIndex);
-
-      // Immediately sync the scrollbar handle to the selected date's position
-      const totalCards = events.length;
-      const progress = firstEventIndex / (totalCards - 1);
-      handleX.set(Math.max(0, Math.min(maxHandlePosition, progress * maxHandlePosition)));
     }
   };
 
