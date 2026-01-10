@@ -139,7 +139,29 @@ export const EventTimeline = ({ events, className = '' }) => {
     // Find the first event with this date
     const firstEventIndex = events.findIndex(event => event.date === date);
     if (firstEventIndex !== -1) {
-      handleJumpToIndex(firstEventIndex);
+      // Update selected index
+      setSelectedIndex(firstEventIndex);
+
+      // On mobile, scroll directly to the card
+      if (isMobile && cardRefs.current[firstEventIndex]) {
+        cardRefs.current[firstEventIndex].scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+        return;
+      }
+
+      // On desktop, animate the timeline to center that card and sync scrollbar
+      if (scrollDistance < 0) {
+        // Calculate proportional position: card index determines how far to scroll
+        const progress = firstEventIndex / (events.length - 1);
+        const targetX = scrollDistance * progress;
+        x.set(targetX);
+
+        // Sync the scrollbar handle position with the selected date/event
+        const handleProgress = firstEventIndex / (events.length - 1);
+        handleX.set(Math.max(0, Math.min(maxHandlePosition, handleProgress * maxHandlePosition)));
+      }
     }
   };
 
