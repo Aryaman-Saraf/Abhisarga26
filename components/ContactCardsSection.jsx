@@ -1,7 +1,13 @@
 'use client'
 
-import { useRef, useEffect, useState } from "react"
-import { motion, useAnimation } from "framer-motion"
+import { useRef, useEffect } from "react"
+import { gsap } from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+// Register GSAP plugin
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 // Team data - MTG/D&D card style with color themes and character images
 const contacts = [
@@ -73,190 +79,95 @@ const contacts = [
   }
 ]
 
-// Card dimensions
-const CARD_W = 200
-const CARD_H = 280
-const SPREAD_GAP = 220
+// Card dimensions - Larger cards for better visibility
+const CARD_W = 260
+const CARD_H = 340
+const CARD_GAP_X = 350 // Horizontal gap
+const CARD_GAP_Y = 380 // Vertical gap
 
 export default function ContactCardsSection() {
   const sectionRef = useRef(null)
-  const cardsRef = useRef(null)
-  const [phase, setPhase] = useState(0) // 0: idle, 1: shuffling, 2: spreading, 3: spread
-  const [hasStarted, setHasStarted] = useState(false)
-  const cardControls = contacts.map(() => useAnimation())
+  const cardsRef = useRef([])
 
-  const totalCards = contacts.length
-  const centerIndex = (totalCards - 1) / 2
-
-  // Custom intersection observer for better control
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          // Only trigger when element is 60% visible (more centered)
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.6 && !hasStarted) {
-            setHasStarted(true)
-            runFullAnimation()
-          }
-        })
-      },
-      { 
-        threshold: [0, 0.3, 0.6, 0.8, 1.0],
-        rootMargin: "-10% 0px -10% 0px" // Trigger when more centered
+    // Ensure GSAP is available
+    if (typeof window === 'undefined') return
+
+    const cards = cardsRef.current.filter(Boolean)
+    if (cards.length === 0) return
+
+    // Set initial state - extremely small and deep
+    cards.forEach((card) => {
+      gsap.set(card, {
+        scale: 0.1, // Start extremely small (0.1x)
+        z: -900,    // Much deeper in background
+        y: 200,     // Start lower
+        opacity: 0,
+        filter: 'blur(30px)', // Heavier blur
+        transformOrigin: 'center center',
+        visibility: 'visible',
+        rotationX: 45 // Steep tilt
+      })
+    })
+
+    // Create timeline for dramatic emergence
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top 60%',       // Start LATE
+        end: 'bottom 90%',      // End much later (when bottom of section is near viewport bottom)
+        scrub: 5,               // High scrub for heavy/slow feel
+        pin: false,
+        onEnter: () => {
+          cards.forEach(card => card.classList.add('card-emerged'))
+        },
+        onLeaveBack: () => {
+          cards.forEach(card => card.classList.remove('card-emerged'))
+        }
       }
-    )
-
-    if (cardsRef.current) {
-      observer.observe(cardsRef.current)
-    }
-
-    return () => observer.disconnect()
-  }, [hasStarted])
-
-  const getSpreadX = (index) => {
-    const offset = index - centerIndex
-    return offset * SPREAD_GAP
-  }
-
-  // Main animation sequence
-  const runFullAnimation = async () => {
-    // Wait a moment for user to see the stacked deck
-    await delay(600)
-    
-    // Phase 1: Initial lift and gather
-    setPhase(1)
-    await animateLift()
-    await delay(300)
-    
-    // Phase 2: Shuffle sequence (multiple rounds)
-    await shuffleRound(1) // First shuffle
-    await delay(200)
-    await shuffleRound(2) // Second shuffle  
-    await delay(200)
-    await shuffleRound(3) // Third shuffle - final
-    await delay(400)
-    
-    // Phase 3: Spread out
-    setPhase(2)
-    await animateSpread()
-    setPhase(3)
-  }
-
-  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
-
-  // Lift cards slightly before shuffling
-  const animateLift = async () => {
-    const promises = cardControls.map((control, index) => {
-      return control.start({
-        y: -20,
-        scale: 1.02,
-        transition: {
-          duration: 0.4,
-          delay: index * 0.03,
-          ease: "easeOut"
-        }
-      })
     })
-    await Promise.all(promises)
-  }
 
-  // Single shuffle round with riffle effect
-  const shuffleRound = async (round) => {
-    const direction = round % 2 === 1 ? 1 : -1
-    const intensity = round === 3 ? 0.5 : 1 // Last round is gentler
-    
-    // Split deck animation - cards fan out
-    const fanOut = cardControls.map((control, index) => {
-      const isLeftHalf = index < totalCards / 2
-      const offsetFromCenter = Math.abs(index - centerIndex)
-      
-      return control.start({
-        x: (isLeftHalf ? -1 : 1) * (40 + offsetFromCenter * 15) * intensity * direction,
-        y: -30 - offsetFromCenter * 8,
-        rotateZ: (isLeftHalf ? -1 : 1) * (5 + offsetFromCenter * 2) * intensity,
-        rotateY: (isLeftHalf ? -1 : 1) * 8 * intensity,
-        transition: {
-          duration: 0.35,
-          delay: index * 0.025,
-          ease: [0.25, 0.1, 0.25, 1]
-        }
-      })
-    })
-    await Promise.all(fanOut)
-    
-    await delay(150)
-    
-    // Riffle together - cards interleave back
-    const riffleBack = cardControls.map((control, index) => {
-      const staggerDelay = Math.abs(index - centerIndex) * 0.04
-      
-      return control.start({
-        x: (Math.random() - 0.5) * 10, // Slight randomness
-        y: -15 + index * 2,
-        rotateZ: (Math.random() - 0.5) * 3,
-        rotateY: 0,
+    // Animation: Cards rise up, scale up, and untilt
+    cards.forEach((card) => {
+      tl.to(card, {
         scale: 1,
-        transition: {
-          duration: 0.4,
-          delay: staggerDelay,
-          ease: [0.34, 1.56, 0.64, 1] // Bounce back
-        }
-      })
-    })
-    await Promise.all(riffleBack)
-    
-    // Settle back to neat stack
-    await delay(100)
-    const settle = cardControls.map((control, index) => {
-      return control.start({
-        x: 0,
-        y: -index * 2,
-        rotateZ: (index - centerIndex) * 0.5,
-        rotateY: 0,
-        scale: 1 - index * 0.008,
-        transition: {
-          duration: 0.3,
-          delay: index * 0.02,
-          ease: "easeOut"
-        }
-      })
-    })
-    await Promise.all(settle)
-  }
-
-  // Spread cards horizontally
-  const animateSpread = async () => {
-    const spreadPromises = cardControls.map((control, index) => {
-      const spreadX = getSpreadX(index)
-      const delayTime = index * 0.1 // Slower stagger
-      
-      return control.start({
-        x: spreadX,
+        z: 0,
         y: 0,
-        rotateZ: 0,
-        rotateY: 0,
-        scale: 1,
-        transition: {
-          type: "spring",
-          stiffness: 60,
-          damping: 14,
-          mass: 1,
-          delay: delayTime,
-        }
-      })
+        opacity: 1,
+        filter: 'blur(0px)',
+        rotationX: 0,
+        duration: 3,              
+        ease: 'power2.out'        
+      }, 0)
     })
-    await Promise.all(spreadPromises)
+
+    // Cleanup on unmount
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
+
+  // 3x3 Grid Layout Calculation
+  const getCardPosition = (index) => {
+    const row = Math.floor(index / 3) // 0 or 1
+    const col = index % 3            // 0, 1, 2
+    
+    // Center the grid
+    // Rows: 2 rows total. Center is 0.5. Offsets: -0.5, 0.5
+    // Cols: 3 cols total. Center is 1. Offsets: -1, 0, 1
+    
+    const x = (col - 1) * CARD_GAP_X
+    const y = (row - 0.5) * CARD_GAP_Y
+    
+    return { x, y }
   }
 
   return (
-    <section ref={sectionRef} className="relative py-20 min-h-[700px]">
+    <section ref={sectionRef} className="relative py-20 min-h-screen w-full overflow-hidden flex flex-col justify-center">
+      {/* Background removed to be transparent */}
+
       {/* Header - MTG Style */}
-      <motion.div
-        className="text-center mb-24"
-        initial={{ opacity: 0, y: 30 }}
-        animate={hasStarted ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 1, ease: "easeOut" }}
-      >
+      <div className="text-center mb-24 relative z-10">
         <h2 
           className="text-4xl md:text-5xl font-bold mb-3 tracking-wide"
           style={{
@@ -277,75 +188,65 @@ export default function ContactCardsSection() {
         >
           Legendary Creatures — Leadership
         </p>
-      </motion.div>
+      </div>
 
-      {/* Card Stack Area */}
+      {/* Card Container with 3D Perspective - Full Width */}
       <div 
-        ref={cardsRef}
-        className="relative w-full flex items-center justify-center"
+        className="relative w-full h-200 flex items-center justify-center"
         style={{ 
-          height: CARD_H + 120,
-          perspective: "1500px"
+          perspective: "1200px", // Lower perspective for more dramatic 3D
+          perspectiveOrigin: "center center",
+          zIndex: 10,
         }}
       >
         {contacts.map((contact, index) => {
-          const stackOffset = index * 2
-          const spreadX = getSpreadX(index)
+          const pos = getCardPosition(index)
           
           return (
-            <motion.div
+            <div
               key={contact.email}
-              className="absolute cursor-pointer"
+              ref={(el) => (cardsRef.current[index] = el)}
+              className="absolute cursor-pointer card-emergence"
               style={{
                 width: CARD_W,
                 height: CARD_H,
-                zIndex: phase >= 2 ? index + 10 : totalCards - index,
+                left: '50%',
+                top: '50%',
+                marginLeft: pos.x - CARD_W / 2,
+                marginTop: pos.y - CARD_H / 2,
                 transformStyle: "preserve-3d",
+                willChange: "transform, opacity, filter",
+                // Removed visibility: hidden to prevent cards disappearing if JS fails
               }}
-              initial={{
-                x: 0,
-                y: -stackOffset,
-                rotateZ: (index - centerIndex) * 0.5,
-                rotateY: 0,
-                scale: 1 - index * 0.008,
-                opacity: 1,
-              }}
-              animate={cardControls[index]}
-              whileHover={phase === 3 ? {
-                y: -25,
-                scale: 1.08,
-                rotateY: 8,
-                zIndex: 100,
-                transition: { duration: 0.3, ease: "easeOut" }
-              } : {}}
             >
               {/* ================================================== */}
-              {/* MTG / D&D CARD - Exact replica style               */}
+              {/* MTG / D&D CARD - Large Size                        */}
               {/* ================================================== */}
               <div 
-                className="w-full h-full relative overflow-hidden select-none"
+                className="w-full h-full relative overflow-hidden select-none group"
                 style={{
                   background: "#171314",
-                  borderRadius: "12px",
-                  padding: "6px",
+                  borderRadius: "14px",
+                  padding: "8px",
                   boxShadow: `
-                    0 20px 40px -10px rgba(0,0,0,0.8),
-                    0 0 0 1px rgba(255,255,255,0.05)
+                    0 25px 50px -12px rgba(0,0,0,0.9),
+                    0 0 0 1px rgba(255,255,255,0.08)
                   `,
+                  fontSize: '1em'
                 }}
               >
                 {/* Inner card frame */}
                 <div 
-                  className="w-full h-full relative overflow-hidden"
+                  className="w-full h-full relative overflow-hidden flex flex-col"
                   style={{
                     background: "#1a1517",
-                    borderRadius: "8px",
+                    borderRadius: "10px",
                     border: "2px solid #2d2a2b",
                   }}
                 >
-                  {/* === TOP BAR: Name + Mana Cost === */}
+                  {/* === TOP BAR === */}
                   <div 
-                    className="relative mx-1.5 mt-1.5 px-2 py-1 flex items-center justify-between"
+                    className="relative mx-1.5 mt-1.5 px-2 py-1 flex items-center justify-between shrink-0"
                     style={{
                       background: "linear-gradient(180deg, #d4c8b8 0%, #c4b8a4 50%, #b8a890 100%)",
                       borderRadius: "4px 4px 0 0",
@@ -353,178 +254,113 @@ export default function ContactCardsSection() {
                       borderBottom: "none",
                     }}
                   >
-                    <span 
-                      className="text-xs font-bold tracking-wide"
-                      style={{ 
-                        color: "#1a1517",
-                        fontFamily: "Georgia, serif",
-                        textShadow: "0 1px 0 rgba(255,255,255,0.3)"
-                      }}
-                    >
+                    <span className="text-[10px] font-bold tracking-wide text-[#1a1517] font-serif">
                       {contact.name}
                     </span>
-                    {/* Mana symbols */}
                     <div className="flex gap-0.5">
                       {contact.mana.split('').map((m, i) => (
-                        <div 
-                          key={i}
-                          className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold"
-                          style={{
-                            background: m === 'U' ? "linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)" :
-                                       m === 'W' ? "linear-gradient(135deg, #fef9c3 0%, #fde047 100%)" :
-                                       m === 'G' ? "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" :
-                                       m === 'R' ? "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)" :
-                                       m === 'B' ? "linear-gradient(135deg, #6b7280 0%, #374151 100%)" :
-                                       "linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)",
-                            color: m === 'W' ? "#1a1517" : "#fff",
-                            boxShadow: "inset 0 1px 2px rgba(255,255,255,0.3), 0 1px 2px rgba(0,0,0,0.3)",
-                            border: "1px solid rgba(0,0,0,0.3)"
-                          }}
-                        >
+                        <div key={i} className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold border border-black/20 ${
+                          m === 'U' ? "bg-blue-500 text-white" :
+                          m === 'W' ? "bg-yellow-200 text-black" :
+                          m === 'G' ? "bg-green-600 text-white" :
+                          m === 'R' ? "bg-red-600 text-white" :
+                          m === 'B' ? "bg-gray-800 text-white" : "bg-gray-400"
+                        }`}>
                           {isNaN(m) ? "" : m}
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* === ART BOX === */}
+                  {/* === ART BOX - LARGER === */}
                   <div 
-                    className="relative mx-1.5 overflow-hidden"
+                    className="relative mx-1.5 border-2 border-[#2d2a2b] bg-gray-900 overflow-hidden grow"
                     style={{
-                      height: "95px",
-                      background: contact.color,
-                      border: "2px solid #2d2a2b",
+                      maxHeight: "140px",
+                      background: contact.color
                     }}
                   >
-                    {/* Art background gradient */}
-                    <div 
-                      className="absolute inset-0"
+                    <div className="absolute inset-0 bg-linear-to-b from-black/0 to-black/40" />
+                    <img 
+                      src={contact.character}
+                      alt={contact.name}
+                      className="absolute inset-0 w-full h-full object-contain p-2"
                       style={{
-                        background: `linear-gradient(180deg, ${contact.color}dd 0%, ${contact.color} 100%)`,
+                        imageRendering: "pixelated", 
+                        filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.5))"
                       }}
                     />
-                    {/* Pixel character image */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <img 
-                        src={contact.character}
-                        alt={contact.name}
-                        className="h-20 w-auto object-contain"
-                        style={{
-                          imageRendering: "pixelated",
-                          filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.5))"
-                        }}
-                      />
-                    </div>
                   </div>
 
                   {/* === TYPE LINE === */}
                   <div 
-                    className="relative mx-1.5 px-2 py-0.5"
+                    className="relative mx-1.5 px-2 py-0.5 shrink-0 z-10"
                     style={{
                       background: "linear-gradient(180deg, #d4c8b8 0%, #c4b8a4 50%, #b8a890 100%)",
                       border: "1px solid #2d2a2b",
                       borderTop: "none",
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
                     }}
                   >
-                    <span 
-                      className="text-[9px] font-semibold"
-                      style={{ 
-                        color: "#1a1517",
-                        fontFamily: "Georgia, serif",
-                      }}
-                    >
+                    <span className="text-[8px] font-semibold text-[#1a1517] font-serif">
                       {contact.type}
                     </span>
                   </div>
 
                   {/* === TEXT BOX === */}
                   <div 
-                    className="relative mx-1.5 mt-0.5 p-2 flex-1"
+                    className="relative mx-1.5 mt-0.5 p-2 grow flex flex-col justify-start"
                     style={{
                       background: "linear-gradient(180deg, #e8dfd0 0%, #d8cfc0 100%)",
                       border: "2px solid #2d2a2b",
                       borderRadius: "0 0 4px 4px",
-                      minHeight: "70px",
                     }}
                   >
-                    {/* Card ability text */}
-                    <p 
-                      className="text-[8px] leading-tight mb-2"
-                      style={{ 
-                        color: "#1a1517",
-                        fontFamily: "Georgia, serif",
-                      }}
-                    >
+                    <p className="text-[9px] leading-tight mb-2 text-[#1a1517] font-serif">
                       {contact.tagline}
                     </p>
-
-                    {/* Divider line */}
-                    <div 
-                      className="w-full h-px my-1"
-                      style={{ background: "rgba(0,0,0,0.15)" }}
-                    />
-
-                    {/* Email as flavor text */}
-                    <p 
-                      className="text-[7px] italic"
-                      style={{ 
-                        color: "#4a4540",
-                        fontFamily: "Georgia, serif",
-                      }}
-                    >
-                      <a 
-                        href={`mailto:${contact.email}`}
-                        className="hover:underline"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        ✉ {contact.email}
-                      </a>
+                    <div className="w-full h-px bg-black/10 my-auto" />
+                    <p className="text-[8px] italic text-[#4a4540] font-serif mt-1">
+                      {contact.email}
                     </p>
                   </div>
 
-                  {/* === BOTTOM BAR: Stats === */}
+                  {/* === STATS === */}
                   <div 
-                    className="absolute bottom-1.5 right-2 px-2 py-0.5"
-                    style={{
-                      background: "linear-gradient(180deg, #d4c8b8 0%, #b8a890 100%)",
-                      borderRadius: "4px",
-                      border: "1px solid #2d2a2b",
-                      boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
-                    }}
+                    className="absolute bottom-1.5 right-2 px-2 py-0.5 bg-linear-to-b from-[#d4c8b8] to-[#b8a890] rounded border border-[#2d2a2b] shadow-md z-20"
                   >
-                    <span 
-                      className="text-sm font-bold"
-                      style={{ 
-                        color: "#1a1517",
-                        fontFamily: "Georgia, serif",
-                      }}
-                    >
+                    <span className="text-xs font-bold text-[#1a1517] font-serif">
                       {contact.stats}
                     </span>
                   </div>
-
-                  {/* Set symbol area (bottom left) */}
-                  <div 
-                    className="absolute bottom-1.5 left-2 text-[6px]"
-                    style={{ color: "#6b6560" }}
-                  >
-                    ABH • 2026
-                  </div>
                 </div>
-              </div>
-            </motion.div>
+              </div>              {/* Card shadow for depth */}
+              <div 
+                className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[90%] h-12 pointer-events-none"
+                style={{
+                  background: "radial-gradient(ellipse, rgba(0,0,0,0.8), transparent)",
+                  filter: "blur(20px)",
+                  zIndex: -1,
+                  opacity: 0,
+                  transform: 'translateY(40px) scale(0.8)'
+                }}
+              />
+            </div>
           )
         })}
       </div>
 
-      {/* Subtle ambient glow */}
-      <div 
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-32 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse at center bottom, rgba(212,200,184,0.08) 0%, transparent 70%)",
-          filter: "blur(40px)"
-        }}
-      />
+      <style jsx>{`
+        .card-emerged .card-emergence {
+          /* Add subtle float animation after emergence */
+          animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+      `}</style>
     </section>
   )
 }
