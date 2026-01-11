@@ -3,14 +3,15 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { Menu, X } from "lucide-react"
 
 const links = [
-  { href: "#hero", label: "Home" },
-  { href: "#about", label: "About" },
-  { href: "#schedule", label: "Schedule" },
+  { href: "/#hero", label: "Home" },
+  { href: "/#about", label: "About" },
+  { href: "/#schedule", label: "Schedule" },
   { href: "/sponsors", label: "Allies", isRoute: true },
   { href: "/crew", label: "Crew", isRoute: true },
-  { href: "#faq", label: "FAQ" },
+  { href: "/#faq", label: "FAQ" },
   { href: "/contact", label: "Contact", isRoute: true },
 ]
 
@@ -41,52 +42,46 @@ export default function Navigation() {
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <Link href="/" className="text-sm uppercase tracking-[0.6em] text-red-200 hover:text-white">
+        <Link href="/" className="text-sm uppercase tracking-[0.6em] text-red-200 hover:text-white relative z-50">
           ABHISARGA'26
         </Link>
 
         <nav className="hidden items-center gap-6 text-xs uppercase tracking-[0.4em] md:flex">
           {links.map((link) => (
-            link.isRoute ? (
-              <Link key={link.href} href={link.href} className="text-white/70 hover:text-white">
-                {link.label}
-              </Link>
-            ) : (
-              <a key={link.href} href={link.href} className="text-white/70 hover:text-white">
-                {link.label}
-              </a>
-            )
+            <Link key={link.href} href={link.href} className="text-white/70 hover:text-white">
+              {link.label}
+            </Link>
           ))}
         </nav>
 
         <button
-          className="md:hidden text-white text-sm tracking-[0.5em]"
+          className="md:hidden text-white relative z-50 p-2 hover:bg-white/10 rounded-full transition-colors"
           onClick={() => setOpen((prev) => !prev)}
           aria-label="Toggle menu"
         >
-          {open ? "Close" : "Menu"}
+          {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
       <AnimatePresence>
         {open && (
           <motion.nav
-            className="md:hidden border-t border-white/5 bg-black/90 px-4 py-6"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+            className="md:hidden fixed inset-0 z-40 bg-black/95 flex flex-col items-center justify-center overscroll-contain touch-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
           >
-            <div className="flex flex-col gap-4 text-xs uppercase tracking-[0.5em]">
+            <div className="flex flex-col gap-8 text-center">
               {links.map((link) => (
-                link.isRoute ? (
-                  <Link key={link.href} href={link.href} className="text-white/80" onClick={() => setOpen(false)}>
-                    {link.label}
-                  </Link>
-                ) : (
-                  <a key={link.href} href={link.href} className="text-white/80" onClick={() => setOpen(false)}>
-                    {link.label}
-                  </a>
-                )
+                <Link 
+                  key={link.href} 
+                  href={link.href} 
+                  className="text-2xl text-white/80 hover:text-white uppercase tracking-[0.3em] font-light" 
+                  onClick={() => setOpen(false)}
+                >
+                  {link.label}
+                </Link>
               ))}
             </div>
           </motion.nav>

@@ -141,14 +141,45 @@ export default function ContactCardsSection() {
     return { x, y }
   }
 
+  // --- Mobile Card Render Helper ---
+  const MobileCard = ({ contact }) => (
+    <div className="w-full max-w-[280px] mx-auto bg-[#171314] rounded-[14px] p-2 shadow-2xl border border-[#2d2a2b] transition-transform hover:scale-105 duration-300">
+      <div className="w-full h-full relative overflow-hidden flex flex-col bg-[#1a1517] rounded-[10px] border-2 border-[#2d2a2b]">
+        {/* TOP BAR */}
+        <div className="relative mx-1.5 mt-1.5 px-2 py-2 flex items-center justify-center shrink-0 bg-linear-to-b from-[#d4c8b8] via-[#c4b8a4] to-[#b8a890] border border-[#2d2a2b] border-b-0 rounded-t-[4px]">
+          <span className="text-sm font-extrabold tracking-wide text-[#1a1517] font-serif uppercase text-center">{contact.name}</span>
+        </div>
+        
+        {/* ART BOX */}
+        <div className="relative mx-1.5 border-2 border-[#2d2a2b] bg-gray-900 overflow-hidden shrink-0 h-[140px]" style={{ background: contact.color }}>
+          <div className="absolute inset-0 bg-linear-to-b from-black/0 to-black/40" />
+          <img src={contact.character} alt={contact.name} className="absolute inset-0 w-full h-full object-contain p-2 image-pixelated drop-shadow-md" />
+        </div>
+
+        {/* TYPE LINE */}
+        <div className="relative mx-1.5 px-2 py-1.5 shrink-0 z-10 flex justify-center items-center bg-linear-to-b from-[#d4c8b8] via-[#c4b8a4] to-[#b8a890] border border-[#2d2a2b] border-t-0 shadow-sm">
+          <span className="text-[10px] font-bold text-[#1a1517] font-serif uppercase tracking-wider text-center">{contact.role}</span>
+        </div>
+
+        {/* TEXT BOX */}
+        <div className="relative mx-1.5 mt-0.5 mb-1.5 p-2 flex flex-col justify-center items-center bg-linear-to-b from-[#e8dfd0] to-[#d8cfc0] border-2 border-[#2d2a2b] rounded-b-[4px] min-h-[50px]">
+          <button onClick={(e) => handleCopy(contact.email, e)} className="group/btn flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1a1517]/5 hover:bg-[#1a1517]/10 border border-[#1a1517]/10 transition-all w-full justify-center">
+            <span className="text-[10px] text-[#1a1517] font-serif font-bold tracking-wide truncate">{contact.email}</span>
+            {copiedEmail === contact.email ? <Check className="w-3 h-3 text-green-600" /> : <Copy className="w-3 h-3 text-[#1a1517]/60 group-hover/btn:text-[#1a1517]" />}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <section ref={sectionRef} className="relative py-20 min-h-screen w-full overflow-hidden flex flex-col justify-center">
       {/* Background removed to be transparent */}
 
       {/* Header - MTG Style */}
-      <div className="text-center mb-24 relative z-10">
+      <div className="text-center mb-12 md:mb-24 relative z-10">
         <h2 
-          className="text-4xl md:text-5xl font-bold mb-3 tracking-wide"
+          className="text-3xl md:text-5xl font-bold mb-3 tracking-wide"
           style={{
             color: "#d4c8b8",
             textShadow: "0 2px 8px rgba(0,0,0,0.8), 0 0 40px rgba(212,200,184,0.2)",
@@ -158,7 +189,7 @@ export default function ContactCardsSection() {
           THE GUILD
         </h2>
         <p 
-          className="text-sm tracking-widest uppercase"
+          className="text-xs md:text-sm tracking-widest uppercase"
           style={{ 
             color: "#8a8580",
             fontFamily: "Georgia, serif",
@@ -169,9 +200,16 @@ export default function ContactCardsSection() {
         </p>
       </div>
 
-      {/* Card Container with 3D Perspective - Full Width */}
+      {/* MOBILE GRID LAYOUT (Visible on small screens) */}
+      <div className="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-8 px-4 w-full max-w-2xl mx-auto z-10">
+        {contacts.map((contact, index) => (
+          <MobileCard key={contact.email} contact={contact} />
+        ))}
+      </div>
+
+      {/* DESKTOP 3D LAYOUT (Hidden on small screens) */}
       <div 
-        className="relative w-full h-200 flex items-center justify-center"
+        className="hidden md:flex relative w-full h-200 items-center justify-center"
         style={{ 
           perspective: "1200px", // Lower perspective for more dramatic 3D
           perspectiveOrigin: "center center",

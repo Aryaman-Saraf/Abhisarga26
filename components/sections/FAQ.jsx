@@ -9,7 +9,7 @@ const faqData = [
     answer: "After registering, you will receive a confirmation email. Follow our updates on social media and email to stay informed."
   },
   {
-    question: "Who can participate in Abhisarga 2025?",
+    question: "Who can participate in Abhisarga 2026?",
     answer: "Students from IIIT Sri City and other colleges can participate. Some events may have specific eligibility criteria mentioned on the event pages."
   },
   {

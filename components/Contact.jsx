@@ -34,13 +34,13 @@ export default function Contact() {
         <div className="max-w-7xl mx-auto relative z-10 px-4 py-32">
           {/* Guild Hall Hero */}
           <motion.div
-            className="text-center mb-20"
+            className="text-center mb-10 md:mb-20"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
           >
             <motion.h1
-              className="mt-40 text-6xl md:text-7xl font-bold mb-6 bg-linear-to-r from-red-200 via-orange-300 to-red-200 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(239,68,68,0.5)]"
+              className="mt-20 md:mt-40 text-4xl sm:text-5xl md:text-7xl font-bold mb-6 bg-linear-to-r from-red-200 via-orange-300 to-red-200 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(239,68,68,0.5)]"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5, duration: 0.8 }}
@@ -49,7 +49,7 @@ export default function Contact() {
             </motion.h1>
             
             <motion.p
-              className="mb-20 text-xl md:text-2xl text-red-100/90 max-w-2xl mx-auto font-light leading-relaxed drop-shadow-lg"
+              className="mb-10 md:mb-20 text-base md:text-2xl text-red-100/90 max-w-2xl mx-auto font-light leading-relaxed drop-shadow-lg px-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7, duration: 0.8 }}
@@ -60,7 +60,7 @@ export default function Contact() {
 
           {/* Contact Our Wizards Section */}
           <motion.div
-            className="mb-20 mt-60"
+            className="mb-10 md:mb-20 mt-20 md:mt-60"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -72,7 +72,9 @@ export default function Contact() {
       </div>
 
       {/* Cinematic 3D Globe Section - Full width for scroll-triggered animation */}
-      <CinematicGlobe />
+      <div className="hidden md:block">
+        <CinematicGlobe />
+      </div>
 
       {/* Raven Messenger Section */}
       <div className="relative min-h-screen text-white overflow-hidden">
