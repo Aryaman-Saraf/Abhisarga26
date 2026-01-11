@@ -27,8 +27,10 @@ export const EventTimeline = ({ events, className = '' }) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [isHoveringTimeline, setIsHoveringTimeline] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [isTouchDragging, setIsTouchDragging] = useState(false);
   const [isGrabbing, setIsGrabbing] = useState(false);
   const [dragStart, setDragStart] = useState(0);
+  const [touchDragStart, setTouchDragStart] = useState(0);
   const [scrollDistance, setScrollDistance] = useState(0);
   const windowSize = 7;
 
@@ -47,6 +49,9 @@ export const EventTimeline = ({ events, className = '' }) => {
   // Motion value for scrollbar handle
   const handleX = useMotionValue(0);
   const [isDraggingScrollbar, setIsDraggingScrollbar] = useState(false);
+  const [isTouching, setIsTouching] = useState(false);
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [touchStartY, setTouchStartY] = useState(0);
 
   // Calculate dynamic scrollbar dimensions based on number of cards
   const cardsPerScrollbarUnit = 1; // Each card gets 1 unit of scrollbar space
@@ -220,6 +225,32 @@ export const EventTimeline = ({ events, className = '' }) => {
     document.removeEventListener('mouseup', handleMouseUp);
   };
 
+  // Touch event handlers for swipe scrolling (similar to mouse drag)
+  const handleTouchStart = (e) => {
+    if (isMobile) return; // Mobile already has native scrolling
+
+    setIsTouchDragging(true);
+    setTouchDragStart(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isTouchDragging || isMobile) return;
+
+    e.preventDefault(); // Prevent default scrolling
+
+    const touchX = e.touches[0].clientX;
+    const deltaX = touchX - touchDragStart;
+    const currentX = x.get();
+    const newX = Math.max(scrollDistance, Math.min(0, currentX + deltaX));
+
+    x.set(newX);
+    setTouchDragStart(touchX);
+  };
+
+  const handleTouchEnd = () => {
+    setIsTouchDragging(false);
+  };
+
   // Prevent wheel events when hovering (allow normal vertical scroll)
   const handleWheel = (e) => {
     if (isHoveringTimeline) {
@@ -357,6 +388,9 @@ export const EventTimeline = ({ events, className = '' }) => {
           if (isDragging) {
             handleMouseUp(); // Clean up if mouse leaves while dragging
           }
+          if (isTouchDragging) {
+            handleTouchEnd(); // Clean up if touch leaves while dragging
+          }
         }}
         onMouseDown={handleMouseDown}
         onWheel={handleWheel}
@@ -403,11 +437,18 @@ export const EventTimeline = ({ events, className = '' }) => {
         </div>
 
         {/* Horizontal scrolling track */}
-        <motion.div
-          ref={trackRef}
-          className="relative z-20 flex items-center gap-4 px-[50vw]"
-          style={{ x: smoothX, position: 'relative', transform: 'translateZ(0)' }}
+        <div
+          className="relative z-20 w-full cursor-grab active:cursor-grabbing"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          style={{ touchAction: 'none' }}
         >
+          <motion.div
+            ref={trackRef}
+            className="flex items-center gap-4 px-[50vw]"
+            style={{ x: smoothX, position: 'relative', transform: 'translateZ(0)' }}
+          >
           {events.map((event, index) => (
             <div key={event.id} className="flex items-center">
               <TimelineConnector
@@ -426,7 +467,8 @@ export const EventTimeline = ({ events, className = '' }) => {
               />
             </div>
           ))}
-        </motion.div>
+          </motion.div>
+        </div>
 
         {/* Horizontal Scrollbar */}
         <motion.div

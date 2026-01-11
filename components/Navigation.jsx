@@ -11,6 +11,7 @@ const links = [
   { href: "#sponsors", label: "Allies" },
   { href: "#team", label: "Crew" },
   { href: "#gallery", label: "Gallery" },
+  { href: "#faq", label: "FAQ" },
   { href: "/contact", label: "Contact", isRoute: true },
 ]
 

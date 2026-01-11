@@ -6,6 +6,7 @@ import EventTimelineSection from "../components/sections/EventTimeline"
 import Sponsors from "../components/sections/Sponsors"
 import Team from "../components/sections/Team"
 import Gallery from "../components/sections/Gallery"
+import FAQ from "../components/sections/FAQ"
 
 export default function Page() {
   return (
@@ -18,6 +19,7 @@ export default function Page() {
       <Sponsors />
       <Team />
       <Gallery />
+      <FAQ />
     </>
   )
 }
