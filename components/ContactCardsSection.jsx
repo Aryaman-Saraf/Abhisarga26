@@ -1,8 +1,9 @@
 'use client'
 
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { Copy, Check } from "lucide-react"
 
 // Register GSAP plugin
 if (typeof window !== 'undefined') {
@@ -14,80 +15,64 @@ const contacts = [
   {
     name: "Yashwanth S",
     role: "Chair",
-    type: "Legendary Leader — Visionary",
     email: "secretary.sdc@iiits.in",
-    tagline: "When Yashwanth enters the battlefield, all team members gain +2/+2 and vigilance until end of turn.",
-    stats: "5/5",
     color: "#0891b2", // Cyan/Teal
-    mana: "3UU",
-    character: "/characters/wizard.png",
+    character: "https://raw.githubusercontent.com/wesnoth/wesnoth/master/data/core/images/units/human-magi/white-mage.png",
   },
   {
     name: "Charvi Palem",
     role: "Co-Chair",
-    type: "Legendary Coordinator — Strategist",
     email: "charvi.p22@iiits.in",
-    tagline: "Tap: Look at the top three cards of your library. Put one into your hand and the rest on the bottom.",
-    stats: "3/4",
     color: "#f59e0b", // Amber/Gold
-    mana: "2WU",
-    character: "/characters/mage.png",
+    character: "https://raw.githubusercontent.com/wesnoth/wesnoth/master/data/core/images/units/human-magi/arch-mage.png",
   },
   {
     name: "Suyash Tiwari",
     role: "Co-Chair",
-    type: "Legendary Creator — Artisan",
     email: "suyash.t22@iiits.in",
-    tagline: "At the beginning of each upkeep, create a 1/1 colorless Artifact creature token.",
-    stats: "3/3",
     color: "#10b981", // Green
-    mana: "2GG",
-    character: "/characters/rogue.png",
+    character: "https://raw.githubusercontent.com/wesnoth/wesnoth/master/data/core/images/units/human-loyalists/fencer.png",
   },
   {
     name: "Abhinav Mars",
     role: "SLC President",
-    type: "Legendary Champion — Student",
     email: "president.slc@iiits.in",
-    tagline: "First strike, lifelink. Whenever Abhinav deals combat damage, draw a card.",
-    stats: "4/4",
     color: "#dc2626", // Red
-    mana: "3RR",
-    character: "/characters/warrior.png",
+    character: "https://raw.githubusercontent.com/wesnoth/wesnoth/master/data/core/images/units/human-loyalists/royalguard.png",
   },
   {
     name: "Kannan M",
     role: "SDC President",
-    type: "Legendary Innovator — Engineer",
     email: "president.sdc@iiits.in",
-    tagline: "Hexproof. At the beginning of your end step, untap all artifacts you control.",
-    stats: "4/5",
     color: "#7c3aed", // Purple
-    mana: "2UB",
-    character: "/characters/knight.png",
+    character: "https://raw.githubusercontent.com/wesnoth/wesnoth/master/data/core/images/units/human-loyalists/lieutenant.png",
   },
   {
     name: "Shreeraj M",
     role: "Sponsorship Lead",
-    type: "Legendary Merchant — Diplomat",
     email: "abhisarga.sponsorship@iiits.in",
-    tagline: "When Shreeraj enters the battlefield, add three mana of any color to your mana pool.",
-    stats: "2/3",
     color: "#ea580c", // Orange
-    mana: "1WG",
-    character: "/characters/archer.png",
+    character: "https://raw.githubusercontent.com/wesnoth/wesnoth/master/data/core/images/units/human-loyalists/longbowman.png",
   }
 ]
 
 // Card dimensions - Larger cards for better visibility
-const CARD_W = 260
-const CARD_H = 340
+const CARD_W = 220
+const CARD_H = 280
 const CARD_GAP_X = 350 // Horizontal gap
-const CARD_GAP_Y = 380 // Vertical gap
+const CARD_GAP_Y = 320 // Vertical gap
 
 export default function ContactCardsSection() {
   const sectionRef = useRef(null)
   const cardsRef = useRef([])
+  const [copiedEmail, setCopiedEmail] = useState(null)
+
+  const handleCopy = (email, e) => {
+    e.stopPropagation()
+    navigator.clipboard.writeText(email)
+    setCopiedEmail(email)
+    setTimeout(() => setCopiedEmail(null), 2000)
+  }
 
   useEffect(() => {
     // Ensure GSAP is available
@@ -117,13 +102,7 @@ export default function ContactCardsSection() {
         start: 'top 60%',       // Start LATE
         end: 'bottom 90%',      // End much later (when bottom of section is near viewport bottom)
         scrub: 5,               // High scrub for heavy/slow feel
-        pin: false,
-        onEnter: () => {
-          cards.forEach(card => card.classList.add('card-emerged'))
-        },
-        onLeaveBack: () => {
-          cards.forEach(card => card.classList.remove('card-emerged'))
-        }
+        pin: false
       }
     })
 
@@ -206,7 +185,7 @@ export default function ContactCardsSection() {
             <div
               key={contact.email}
               ref={(el) => (cardsRef.current[index] = el)}
-              className="absolute cursor-pointer card-emergence"
+              className="absolute cursor-pointer"
               style={{
                 width: CARD_W,
                 height: CARD_H,
@@ -246,7 +225,7 @@ export default function ContactCardsSection() {
                 >
                   {/* === TOP BAR === */}
                   <div 
-                    className="relative mx-1.5 mt-1.5 px-2 py-1 flex items-center justify-between shrink-0"
+                    className="relative mx-1.5 mt-1.5 px-2 py-2 flex items-center justify-center shrink-0"
                     style={{
                       background: "linear-gradient(180deg, #d4c8b8 0%, #c4b8a4 50%, #b8a890 100%)",
                       borderRadius: "4px 4px 0 0",
@@ -254,30 +233,17 @@ export default function ContactCardsSection() {
                       borderBottom: "none",
                     }}
                   >
-                    <span className="text-[10px] font-bold tracking-wide text-[#1a1517] font-serif">
+                    <span className="text-base font-extrabold tracking-wide text-[#1a1517] font-serif uppercase text-center">
                       {contact.name}
                     </span>
-                    <div className="flex gap-0.5">
-                      {contact.mana.split('').map((m, i) => (
-                        <div key={i} className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold border border-black/20 ${
-                          m === 'U' ? "bg-blue-500 text-white" :
-                          m === 'W' ? "bg-yellow-200 text-black" :
-                          m === 'G' ? "bg-green-600 text-white" :
-                          m === 'R' ? "bg-red-600 text-white" :
-                          m === 'B' ? "bg-gray-800 text-white" : "bg-gray-400"
-                        }`}>
-                          {isNaN(m) ? "" : m}
-                        </div>
-                      ))}
-                    </div>
                   </div>
 
-                  {/* === ART BOX - LARGER === */}
+                  {/* === ART BOX === */}
                   <div 
-                    className="relative mx-1.5 border-2 border-[#2d2a2b] bg-gray-900 overflow-hidden grow"
+                    className="relative mx-1.5 border-2 border-[#2d2a2b] bg-gray-900 overflow-hidden shrink-0"
                     style={{
-                      maxHeight: "140px",
-                      background: contact.color
+                      background: contact.color,
+                      height: "120px"
                     }}
                   >
                     <div className="absolute inset-0 bg-linear-to-b from-black/0 to-black/40" />
@@ -294,7 +260,7 @@ export default function ContactCardsSection() {
 
                   {/* === TYPE LINE === */}
                   <div 
-                    className="relative mx-1.5 px-2 py-0.5 shrink-0 z-10"
+                    className="relative mx-1.5 px-2 py-1.5 shrink-0 z-10 flex justify-center items-center"
                     style={{
                       background: "linear-gradient(180deg, #d4c8b8 0%, #c4b8a4 50%, #b8a890 100%)",
                       border: "1px solid #2d2a2b",
@@ -302,37 +268,37 @@ export default function ContactCardsSection() {
                       boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
                     }}
                   >
-                    <span className="text-[8px] font-semibold text-[#1a1517] font-serif">
-                      {contact.type}
+                    <span className="text-xs font-bold text-[#1a1517] font-serif uppercase tracking-wider text-center">
+                      {contact.role}
                     </span>
                   </div>
 
                   {/* === TEXT BOX === */}
                   <div 
-                    className="relative mx-1.5 mt-0.5 p-2 grow flex flex-col justify-start"
+                    className="relative mx-1.5 mt-0.5 p-2 grow flex flex-col justify-center items-center"
                     style={{
                       background: "linear-gradient(180deg, #e8dfd0 0%, #d8cfc0 100%)",
                       border: "2px solid #2d2a2b",
                       borderRadius: "0 0 4px 4px",
+                      minHeight: "50px"
                     }}
                   >
-                    <p className="text-[9px] leading-tight mb-2 text-[#1a1517] font-serif">
-                      {contact.tagline}
-                    </p>
-                    <div className="w-full h-px bg-black/10 my-auto" />
-                    <p className="text-[8px] italic text-[#4a4540] font-serif mt-1">
-                      {contact.email}
-                    </p>
+                    <button 
+                      onClick={(e) => handleCopy(contact.email, e)}
+                      className="group/btn flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1a1517]/5 hover:bg-[#1a1517]/10 border border-[#1a1517]/10 hover:border-[#1a1517]/20 transition-all w-full justify-center"
+                    >
+                      <span className="text-xs text-[#1a1517] font-serif font-bold tracking-wide truncate">
+                        {contact.email}
+                      </span>
+                      {copiedEmail === contact.email ? (
+                        <Check className="w-3.5 h-3.5 text-green-600" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5 text-[#1a1517]/60 group-hover/btn:text-[#1a1517]" />
+                      )}
+                    </button>
                   </div>
 
-                  {/* === STATS === */}
-                  <div 
-                    className="absolute bottom-1.5 right-2 px-2 py-0.5 bg-linear-to-b from-[#d4c8b8] to-[#b8a890] rounded border border-[#2d2a2b] shadow-md z-20"
-                  >
-                    <span className="text-xs font-bold text-[#1a1517] font-serif">
-                      {contact.stats}
-                    </span>
-                  </div>
+
                 </div>
               </div>              {/* Card shadow for depth */}
               <div 
@@ -349,18 +315,6 @@ export default function ContactCardsSection() {
           )
         })}
       </div>
-
-      <style jsx>{`
-        .card-emerged .card-emergence {
-          /* Add subtle float animation after emergence */
-          animation: float 6s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-      `}</style>
     </section>
   )
 }
