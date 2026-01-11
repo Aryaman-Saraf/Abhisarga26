@@ -9,7 +9,8 @@ const links = [
   { href: "#about", label: "About" },
   { href: "#schedule", label: "Schedule" },
   { href: "/sponsors", label: "Allies", isRoute: true },
-  { href: "#team", label: "Crew" },
+  { href: "/crew", label: "Crew", isRoute: true },
+  { href: "#faq", label: "FAQ" },
   { href: "/contact", label: "Contact", isRoute: true },
 ]
 

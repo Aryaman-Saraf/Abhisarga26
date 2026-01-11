@@ -4,6 +4,7 @@ import About from "../components/sections/About"
 import Events from "../components/sections/Events"
 import EventTimelineSection from "../components/sections/EventTimeline"
 import Team from "../components/sections/Team"
+import FAQ from "../components/sections/FAQ"
 
 export default function Page() {
   return (
@@ -14,6 +15,7 @@ export default function Page() {
       <Events />
       <EventTimelineSection />
       <Team />
+      <FAQ />
     </>
   )
 }
