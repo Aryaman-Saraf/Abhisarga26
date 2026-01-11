@@ -8,9 +8,8 @@ const links = [
   { href: "#hero", label: "Home" },
   { href: "#about", label: "About" },
   { href: "#schedule", label: "Schedule" },
-  { href: "#sponsors", label: "Allies" },
+  { href: "/sponsors", label: "Allies", isRoute: true },
   { href: "#team", label: "Crew" },
-  { href: "#gallery", label: "Gallery" },
   { href: "/contact", label: "Contact", isRoute: true },
 ]
 
