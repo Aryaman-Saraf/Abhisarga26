@@ -18,7 +18,6 @@ const ALL_EVENTS = eventCategories.flatMap((cat) =>
   }))
 );
 
-
 const pairedEvents = [];
 for (let i = 0; i < ALL_EVENTS.length; i += 2) {
   pairedEvents.push(ALL_EVENTS.slice(i, i + 2));
@@ -80,11 +79,12 @@ function EventCard({ event }) {
             onError={(e) => {
               e.target.src = "/dummy-poster.png";
             }}
-            className={`w-full h-full object-cover transition-all duration-700 ${
+            className={`block w-full h-full object-fill transition-all duration-700 ${
               isHovered ? "opacity-20 scale-110 blur-sm" : "opacity-100 scale-100"
             }`}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+          
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60" />
         </div>
 
         <motion.div
@@ -214,7 +214,6 @@ export default function DeepForestParallax() {
         },
       });
 
-     
       mainTl
         .to(treesRef.current, { scale: 4, opacity: 0, filter: "blur(20px)", duration: 0.8, ease: "none" }, 0)
         .to(treesRef2.current, { scale: 3, duration: 1.2, ease: "none" }, 0)
@@ -227,7 +226,6 @@ export default function DeepForestParallax() {
         if (!row) return;
         const cards = row.querySelectorAll(".mission-card-gsap-wrapper");
         cards.forEach((card, i) => {
-        
           gsap.fromTo(
             card,
             { 
@@ -296,7 +294,6 @@ export default function DeepForestParallax() {
           </h1>
         </section>
 
-       
         <section className="max-w-7xl mx-auto flex flex-col gap-y-[20vh] md:gap-y-[70vh] px-6 md:px-10 items-center">
           {pairedEvents.map((pair, rowIndex) => (
             <div
@@ -307,7 +304,7 @@ export default function DeepForestParallax() {
               {pair.map((event) => (
                 <div
                   key={event.name}
-                  className="mission-card-gsap-wrapper w-[85%] sm:w-[60%] md:w-[45%] aspect-[3/4] will-change-transform"
+                  className="mission-card-gsap-wrapper w-[90%] sm:w-[60%] md:w-[45%] aspect-[3/4] will-change-transform"
                 >
                   <EventCard event={event} />
                 </div>
