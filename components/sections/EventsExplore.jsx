@@ -53,6 +53,7 @@ function EventCard({ event }) {
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleMobileClick}
     >
+      {/* Background Glow */}
       <div
         className={`absolute -inset-4 bg-red-600/10 rounded-full blur-3xl transition-opacity duration-700 ${
           isHovered ? "opacity-100" : "opacity-0"
@@ -83,7 +84,6 @@ function EventCard({ event }) {
               isHovered ? "opacity-20 scale-110 blur-sm" : "opacity-100 scale-100"
             }`}
           />
-          
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60" />
         </div>
 
@@ -92,8 +92,8 @@ function EventCard({ event }) {
           initial={{ opacity: 0, z: 0 }}
           animate={{
             opacity: isHovered ? 1 : 0,
-            z: isHovered ? 120 : 0, 
-            y: isHovered ? -80 : 0, 
+            z: isHovered ? 180 : 0, // Increased Z to prevent clipping
+            y: isHovered ? -100 : 0, // Lifted higher for visibility
             rotateX: isHovered ? -75 : 0,
           }}
           transition={{ type: "spring", stiffness: 120, damping: 18 }}
@@ -111,12 +111,20 @@ function EventCard({ event }) {
             <p>CLUB: <span className="text-white">{event.club || "TBA"}</span></p>
           </div>
 
-          <button
+          {/* Enhanced Know More Button */}
+          <motion.button
             onClick={handleKnowMore}
-            className="px-4 py-1 md:px-6 md:py-2 bg-red-600 text-white font-bold tracking-widest hover:bg-white hover:text-black transition-colors duration-300 rounded-sm text-[10px] cursor-pointer"
+            whileHover={{ 
+                scale: 1.1, 
+                boxShadow: "0px 0px 20px rgb(220, 38, 38)",
+                backgroundColor: "#ffffff",
+                color: "#000000"
+            }}
+            whileTap={{ scale: 0.9 }}
+            className="px-4 py-1 md:px-8 md:py-3 bg-red-600 text-white font-black tracking-[0.2em] transition-colors duration-300 rounded-sm text-[10px] md:text-sm cursor-pointer border border-transparent"
           >
             KNOW MORE
-          </button>
+          </motion.button>
         </motion.div>
       </motion.div>
     </div>
@@ -138,6 +146,7 @@ export default function DeepForestParallax() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx_canvas = canvas.getContext("2d");
     let particles = [];
     let animationFrameId;

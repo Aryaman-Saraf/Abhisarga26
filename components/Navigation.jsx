@@ -8,6 +8,7 @@ import { Menu, X } from "lucide-react"
 const links = [
   { href: "/#hero", label: "Home" },
   { href: "/#about", label: "About" },
+  { href: "/events-explore", label: "Events",isRoute:true },
   { href: "/#schedule", label: "Schedule" },
   { href: "/sponsors", label: "Allies", isRoute: true },
   { href: "/crew", label: "Crew", isRoute: true },
