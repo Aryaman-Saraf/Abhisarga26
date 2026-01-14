@@ -30,7 +30,7 @@ function EventCard({ event }) {
   const handleKnowMore = (e) => {
     if (e) e.stopPropagation();
     const slug = event.name.replace(/\s+/g, "-").toLowerCase();
-    router.push(`/events/${slug}`);
+    router.push(`/events-cards/${slug}`);
   };
 
   const handleMobileClick = () => {
@@ -92,8 +92,8 @@ function EventCard({ event }) {
           initial={{ opacity: 0, z: 0 }}
           animate={{
             opacity: isHovered ? 1 : 0,
-            z: isHovered ? 180 : 0, // Increased Z to prevent clipping
-            y: isHovered ? -100 : 0, // Lifted higher for visibility
+            z: isHovered ? 180 : 0,
+            y: isHovered ? -100 : 0, 
             rotateX: isHovered ? -75 : 0,
           }}
           transition={{ type: "spring", stiffness: 120, damping: 18 }}
@@ -107,11 +107,11 @@ function EventCard({ event }) {
 
           <div className="flex flex-col gap-1 text-[10px] sm:text-sm md:text-2xl font-bold text-gray-400 uppercase tracking-widest mb-4">
             <p>DATE: <span className="text-white">{event.date || "TBA"}</span></p>
-            <p>LOC: <span className="text-white">{event.location || "TBA"}</span></p>
+            <p>LOCATION: <span className="text-white">{event.location || "TBA"}</span></p>
             <p>CLUB: <span className="text-white">{event.club || "TBA"}</span></p>
           </div>
 
-          {/* Enhanced Know More Button */}
+         
           <motion.button
             onClick={handleKnowMore}
             whileHover={{ 
