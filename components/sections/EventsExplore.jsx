@@ -18,7 +18,6 @@ const ALL_EVENTS = eventCategories.flatMap((cat) =>
   }))
 );
 
-
 const pairedEvents = [];
 for (let i = 0; i < ALL_EVENTS.length; i += 2) {
   pairedEvents.push(ALL_EVENTS.slice(i, i + 2));
@@ -31,7 +30,7 @@ function EventCard({ event }) {
   const handleKnowMore = (e) => {
     if (e) e.stopPropagation();
     const slug = event.name.replace(/\s+/g, "-").toLowerCase();
-    router.push(`/events/${slug}`);
+    router.push(`/events-cards/${slug}`);
   };
 
   const handleMobileClick = () => {
@@ -54,6 +53,7 @@ function EventCard({ event }) {
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleMobileClick}
     >
+      {/* Background Glow */}
       <div
         className={`absolute -inset-4 bg-red-600/10 rounded-full blur-3xl transition-opacity duration-700 ${
           isHovered ? "opacity-100" : "opacity-0"
@@ -80,11 +80,11 @@ function EventCard({ event }) {
             onError={(e) => {
               e.target.src = "/dummy-poster.png";
             }}
-            className={`w-full h-full object-cover transition-all duration-700 ${
+            className={`block w-full h-full object-fill transition-all duration-700 ${
               isHovered ? "opacity-20 scale-110 blur-sm" : "opacity-100 scale-100"
             }`}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60" />
         </div>
 
         <motion.div
@@ -92,8 +92,8 @@ function EventCard({ event }) {
           initial={{ opacity: 0, z: 0 }}
           animate={{
             opacity: isHovered ? 1 : 0,
-            z: isHovered ? 120 : 0, 
-            y: isHovered ? -80 : 0, 
+            z: isHovered ? 180 : 0,
+            y: isHovered ? -100 : 0, 
             rotateX: isHovered ? -75 : 0,
           }}
           transition={{ type: "spring", stiffness: 120, damping: 18 }}
@@ -107,16 +107,24 @@ function EventCard({ event }) {
 
           <div className="flex flex-col gap-1 text-[10px] sm:text-sm md:text-2xl font-bold text-gray-400 uppercase tracking-widest mb-4">
             <p>DATE: <span className="text-white">{event.date || "TBA"}</span></p>
-            <p>LOC: <span className="text-white">{event.location || "TBA"}</span></p>
+            <p>LOCATION: <span className="text-white">{event.location || "TBA"}</span></p>
             <p>CLUB: <span className="text-white">{event.club || "TBA"}</span></p>
           </div>
 
-          <button
+         
+          <motion.button
             onClick={handleKnowMore}
-            className="px-4 py-1 md:px-6 md:py-2 bg-red-600 text-white font-bold tracking-widest hover:bg-white hover:text-black transition-colors duration-300 rounded-sm text-[10px] cursor-pointer"
+            whileHover={{ 
+                scale: 1.1, 
+                boxShadow: "0px 0px 20px rgb(220, 38, 38)",
+                backgroundColor: "#ffffff",
+                color: "#000000"
+            }}
+            whileTap={{ scale: 0.9 }}
+            className="px-4 py-1 md:px-8 md:py-3 bg-red-600 text-white font-black tracking-[0.2em] transition-colors duration-300 rounded-sm text-[10px] md:text-sm cursor-pointer border border-transparent"
           >
             KNOW MORE
-          </button>
+          </motion.button>
         </motion.div>
       </motion.div>
     </div>
@@ -138,6 +146,7 @@ export default function DeepForestParallax() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx_canvas = canvas.getContext("2d");
     let particles = [];
     let animationFrameId;
@@ -214,7 +223,6 @@ export default function DeepForestParallax() {
         },
       });
 
-     
       mainTl
         .to(treesRef.current, { scale: 4, opacity: 0, filter: "blur(20px)", duration: 0.8, ease: "none" }, 0)
         .to(treesRef2.current, { scale: 3, duration: 1.2, ease: "none" }, 0)
@@ -227,7 +235,6 @@ export default function DeepForestParallax() {
         if (!row) return;
         const cards = row.querySelectorAll(".mission-card-gsap-wrapper");
         cards.forEach((card, i) => {
-        
           gsap.fromTo(
             card,
             { 
@@ -296,7 +303,6 @@ export default function DeepForestParallax() {
           </h1>
         </section>
 
-       
         <section className="max-w-7xl mx-auto flex flex-col gap-y-[20vh] md:gap-y-[70vh] px-6 md:px-10 items-center">
           {pairedEvents.map((pair, rowIndex) => (
             <div
@@ -307,7 +313,7 @@ export default function DeepForestParallax() {
               {pair.map((event) => (
                 <div
                   key={event.name}
-                  className="mission-card-gsap-wrapper w-[85%] sm:w-[60%] md:w-[45%] aspect-[3/4] will-change-transform"
+                  className="mission-card-gsap-wrapper w-[90%] sm:w-[60%] md:w-[45%] aspect-[3/4] will-change-transform"
                 >
                   <EventCard event={event} />
                 </div>
