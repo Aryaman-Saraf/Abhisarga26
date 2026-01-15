@@ -6,11 +6,15 @@ export default {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  
   theme: {
     extend: {
       fontFamily: {
-        'cinzel': ['Cinzel', 'serif'],
+        
         'jost': ['Jost', 'sans-serif'],
+        'cinzel': ['var(--font-cinzel)', 'serif'],
+        'space': ['var(--font-space)', 'sans-serif'],
+        'vt323': ['var(--font-vt323)', 'monospace'],
       },
       animation: {
         'fog-drift': 'fog-drift 20s ease-in-out infinite',

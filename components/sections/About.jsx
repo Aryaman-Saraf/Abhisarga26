@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 
 const About = () => {
@@ -11,28 +11,50 @@ const About = () => {
   });
 
   const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
-  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
+  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
 
   // Carousel state
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  // Sample images - replace with your actual event images
+  // Event images from public/images directory
   const carouselImages = [
-    "Abhisarga26/public/event1.png",
-    "Abhisarga26/public/event2.png", 
-    "Abhisarga26/public/event3.png",
-    "Abhisarga26/public/event4.png",
+    { src: "Abhisarga26/public/images/event1.jpg", caption: "Dance Night" },
+    { src: "Abhisarga26/public/images/event2.jpg", caption: "Tech Fest" },
+    { src: "Abhisarga26/public/images/event3.jpg", caption: "Cultural Show" },
+    { src: "Abhisarga26/public/images/event4.jpg", caption: "Pro Show" },
   ];
+
+  // Floating spores particles
+  const spores = Array.from({ length: 20 }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    duration: 10 + Math.random() * 20,
+    delay: Math.random() * 5,
+  }));
+
+  // Christmas lights blinking effect
+  const [activeLights, setActiveLights] = useState(new Set([0, 2, 5, 7]));
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newActive = new Set();
+      const count = 3 + Math.floor(Math.random() * 5);
+      for (let i = 0; i < count; i++) {
+        newActive.add(Math.floor(Math.random() * 9));
+      }
+      setActiveLights(newActive);
+    }, 800);
+    return () => clearInterval(interval);
+  }, []);
 
   // Auto-play carousel
   useEffect(() => {
     if (!isAutoPlaying) return;
-    
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
     }, 4000);
-
     return () => clearInterval(interval);
   }, [isAutoPlaying, carouselImages.length]);
 
@@ -52,30 +74,60 @@ const About = () => {
       ref={sectionRef}
       className="relative min-h-screen bg-black py-20 px-4 overflow-hidden"
     >
-      {/* Upside Down Background Effect */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute inset-0 bg-gradient-to-b from-red-950/30 via-black to-purple-950/30" />
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-40 mix-blend-overlay" />
+      {/* Upside Down Background with VHS noise */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-black to-red-950/40" />
+        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-30 mix-blend-overlay animate-pulse" />
+        
+        {/* Floating Spores Effect */}
+        {spores.map((spore) => (
+          <motion.div
+            key={spore.id}
+            className="absolute w-1 h-1 bg-white/40 rounded-full blur-sm"
+            initial={{ x: `${spore.x}vw`, y: `${spore.y}vh` }}
+            animate={{
+              y: [`${spore.y}vh`, `${spore.y + 20}vh`, `${spore.y}vh`],
+              x: [`${spore.x}vw`, `${spore.x + 5}vw`, `${spore.x}vw`],
+              opacity: [0.2, 0.6, 0.2],
+            }}
+            transition={{
+              duration: spore.duration,
+              delay: spore.delay,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
       </div>
 
-      {/* Animated Portal Rings */}
+      {/* Joyce Byers Christmas Lights Header */}
       <motion.div
-        style={{ opacity }}
-        className="absolute top-1/4 right-1/4 w-96 h-96 rounded-full border-2 border-red-600/20 blur-xl"
-        animate={{
-          scale: [1, 1.2, 1],
-          rotate: [0, 180, 360],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
+        initial={{ opacity: 0, y: -30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+        viewport={{ once: true }}
+        className="relative z-20 max-w-5xl mx-auto mb-12"
+      >
+        <div className="flex items-center justify-center gap-4 mb-4">
+          {Array.from({ length: 9 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                activeLights.has(i)
+                  ? "bg-amber-400 shadow-[0_0_20px_#fbbf24] scale-125"
+                  : "bg-amber-900/30"
+              }`}
+              animate={activeLights.has(i) ? { scale: [1, 1.3, 1] } : {}}
+              transition={{ duration: 0.5 }}
+            />
+          ))}
+        </div>
+        <div className="h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
+      </motion.div>
 
       <div className="relative z-10 max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left Content */}
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          {/* Left Content - Hawkins Lab Dossier Style */}
           <motion.div
             style={{ y }}
             initial={{ opacity: 0, x: -50 }}
@@ -84,19 +136,22 @@ const About = () => {
             viewport={{ once: true }}
             className="space-y-8"
           >
-            {/* Section Label */}
+            {/* Classified Label */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
+              className="inline-block"
             >
-              <span className="text-amber-500 font-['VT323'] text-xl tracking-wider uppercase">
-                → About
-              </span>
+              <div className="border-2 border-red-600/50 bg-red-950/20 px-4 py-2 backdrop-blur-sm">
+                <span className="text-red-500 font-['VT323'] text-2xl tracking-widest uppercase">
+                  → CLASSIFIED: ABOUT
+                </span>
+              </div>
             </motion.div>
 
-            {/* Glitch Title - ABHISARGA */}
+            {/* Glitch Title - ABHISARGA with Stranger Things style */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -104,40 +159,59 @@ const About = () => {
               viewport={{ once: true }}
               className="relative"
             >
-              <h2 className="text-5xl md:text-7xl font-['Cinzel_Decorative'] font-bold text-white relative">
+              <h2 className="text-6xl md:text-8xl font-['Cinzel_Decorative'] font-black text-white relative tracking-tight">
                 <span className="relative inline-block">
                   ABHISARGA
-                  {/* Glitch layers */}
-                  <span className="absolute top-0 left-0 text-red-600 opacity-70 animate-glitch-1">
+                  {/* Red neon glow effect */}
+                  <span 
+                    className="absolute top-0 left-0 text-red-600 opacity-70 blur-md"
+                    style={{ textShadow: "0 0 20px #dc2626, 0 0 40px #dc2626" }}
+                  >
                     ABHISARGA
                   </span>
-                  <span className="absolute top-0 left-0 text-cyan-600 opacity-70 animate-glitch-2">
+                  {/* Cyan glitch layer */}
+                  <span 
+                    className="absolute top-0 left-0 text-cyan-500 opacity-50"
+                    style={{ 
+                      animation: "glitch-skew 0.3s infinite",
+                      clipPath: "polygon(0 0, 100% 0, 100% 45%, 0 45%)"
+                    }}
+                  >
                     ABHISARGA
                   </span>
                 </span>
               </h2>
+              
+              {/* Red underglow */}
+              <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent opacity-60 blur-sm" />
             </motion.div>
 
-            {/* Description */}
+            {/* Dossier Description with typewriter feel */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
               viewport={{ once: true }}
-              className="space-y-6"
+              className="space-y-6 border-l-2 border-amber-500/30 pl-6"
             >
-              <p className="text-gray-300 text-lg leading-relaxed font-['Space_Grotesk']">
-                Abhisarga is IIIT Sri City's annual techno-cultural fest. It combines technology,
-                culture, and entertainment, creating a vibrant platform for talent and innovation.
-              </p>
-              <p className="text-gray-400 leading-relaxed font-['Space_Grotesk']">
-                Experience dazzling dance competitions, proshows, DJ nights, technical challenges,
-                cultural performances, and much more. Celebrate creativity and innovation at
-                Abhisarga this March!
-              </p>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <span className="text-amber-500 font-['VT323'] text-xl mt-1">▸</span>
+                  <p className="text-gray-300 text-lg leading-relaxed font-['Space_Grotesk']">
+                    <span className="text-amber-500 font-semibold">PROJECT NAME:</span> Abhisarga is IIIT Sri City's annual techno-cultural fest. It combines technology, culture, and entertainment, creating a vibrant platform for talent and innovation.
+                  </p>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <span className="text-amber-500 font-['VT323'] text-xl mt-1">▸</span>
+                  <p className="text-gray-400 leading-relaxed font-['VT323'] text-lg">
+                    <span className="text-red-400 font-semibold">EXPECTED PHENOMENA:</span> Experience dazzling dance competitions, proshows, DJ nights, technical challenges, cultural performances, and much more. Celebrate creativity and innovation at Abhisarga this March!
+                  </p>
+                </div>
+              </div>
             </motion.div>
 
-            {/* Stats */}
+            {/* D&D Character Stats Style */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -146,133 +220,182 @@ const About = () => {
               className="grid grid-cols-3 gap-6 pt-4"
             >
               {[
-                { number: "10K+", label: "Participants" },
-                { number: "50+", label: "Events" },
-                { number: "3", label: "Days" },
+                { number: "10K+", label: "PARTICIPANTS", color: "red" },
+                { number: "50+", label: "EVENTS", color: "amber" },
+                { number: "3", label: "DAYS", color: "cyan" },
               ].map((stat, idx) => (
-                <div key={idx} className="text-center group">
-                  <div className="text-3xl font-bold text-red-500 font-['VT323'] group-hover:text-red-400 transition-colors">
-                    {stat.number}
+                <motion.div 
+                  key={idx} 
+                  className="relative group"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <div className="text-center border-2 border-red-900/40 bg-black/60 p-4 backdrop-blur-sm relative overflow-hidden">
+                    {/* Scanline effect */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-red-500/5 to-transparent animate-pulse" />
+                    
+                    <div className={`text-4xl font-black text-${stat.color}-500 font-['VT323'] group-hover:text-${stat.color}-400 transition-colors relative z-10`}>
+                      {stat.number}
+                    </div>
+                    <div className="text-xs text-gray-400 uppercase tracking-widest font-['Space_Grotesk'] mt-1 relative z-10">
+                      {stat.label}
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-400 uppercase tracking-wide font-['Space_Grotesk']">
-                    {stat.label}
-                  </div>
-                </div>
+                </motion.div>
               ))}
             </motion.div>
           </motion.div>
 
-          {/* Right Content - 3D Carousel */}
+          {/* Right Content - Floating Polaroids (Upside Down Memories) */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             viewport={{ once: true }}
-            className="relative h-[600px] flex items-center justify-center perspective-1000"
+            className="relative h-[600px] flex items-center justify-center"
+            style={{ perspective: "1200px" }}
             onMouseEnter={() => setIsAutoPlaying(false)}
             onMouseLeave={() => setIsAutoPlaying(true)}
           >
-            {/* Carousel Container */}
+            {/* Polaroid Stack */}
             <div className="relative w-full h-full flex items-center justify-center">
-              {carouselImages.map((img, idx) => {
-                const offset = (idx - currentSlide + carouselImages.length) % carouselImages.length;
-                const isActive = offset === 0;
-                
-                return (
-                  <motion.div
-                    key={idx}
-                    className="absolute w-[400px] h-[300px] rounded-lg overflow-hidden border-2 border-red-900/40 shadow-2xl cursor-pointer"
-                    style={{
-                      zIndex: carouselImages.length - Math.abs(offset),
-                    }}
-                    initial={false}
-                    animate={{
-                      x: offset * 60,
-                      y: offset * 40,
-                      rotateY: offset * 15,
-                      rotateZ: offset * -5,
-                      scale: isActive ? 1 : 0.85 - Math.abs(offset) * 0.1,
-                      opacity: Math.abs(offset) > 2 ? 0 : 1 - Math.abs(offset) * 0.25,
-                    }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
-                    onClick={() => setCurrentSlide(idx)}
-                  >
-                    {/* Placeholder with gradient - replace with actual images */}
-                    <div className="w-full h-full bg-gradient-to-br from-purple-900 via-red-900 to-black flex items-center justify-center">
-                      <span className="text-white text-xl font-['VT323']">
-                        Event Photo {idx + 1}
-                      </span>
-                    </div>
-                    
-                    {/* Glitch overlay effect */}
-                    {isActive && (
-                      <motion.div
-                        className="absolute inset-0 bg-red-600/10 mix-blend-overlay"
-                        animate={{ opacity: [0, 0.3, 0] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      />
-                    )}
-                  </motion.div>
-                );
-              })}
+              <AnimatePresence mode="popLayout">
+                {carouselImages.map((img, idx) => {
+                  const offset = (idx - currentSlide + carouselImages.length) % carouselImages.length;
+                  const isActive = offset === 0;
+                  
+                  return (
+                    <motion.div
+                      key={idx}
+                      className="absolute cursor-pointer"
+                      style={{
+                        zIndex: carouselImages.length - Math.abs(offset),
+                      }}
+                      initial={false}
+                      animate={{
+                        x: offset * 70,
+                        y: offset * 50,
+                        rotateY: offset * 20,
+                        rotateZ: offset * -8,
+                        scale: isActive ? 1 : 0.8 - Math.abs(offset) * 0.12,
+                        opacity: Math.abs(offset) > 2 ? 0 : 1 - Math.abs(offset) * 0.3,
+                      }}
+                      transition={{ duration: 0.7, ease: "easeOut" }}
+                      onClick={() => setCurrentSlide(idx)}
+                      whileHover={isActive ? { scale: 1.05, rotateZ: 2 } : {}}
+                    >
+                      {/* Polaroid Frame */}
+                      <div className="bg-white p-3 pb-12 shadow-2xl" style={{ width: "340px" }}>
+                        {/* Photo Area */}
+                        <div className="w-full h-64 bg-gradient-to-br from-purple-900 via-red-900 to-black overflow-hidden relative">
+                          {/* Placeholder - Replace with actual image */}
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-white/80 text-xl font-['VT323']">
+                              EVENT PHOTO {idx + 1}
+                            </span>
+                          </div>
+                          
+                          {/* VHS distortion on active */}
+                          {isActive && (
+                            <>
+                              <motion.div
+                                className="absolute inset-0 bg-red-600/10 mix-blend-overlay"
+                                animate={{ opacity: [0, 0.3, 0] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent animate-pulse" />
+                            </>
+                          )}
+                        </div>
+                        
+                        {/* Polaroid Caption */}
+                        <div className="mt-3 text-center">
+                          <p className="text-gray-800 font-['VT323'] text-xl">
+                            {img.caption}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Tape effect on corners */}
+                      <div className="absolute -top-2 left-8 w-16 h-6 bg-amber-100/80 rotate-[-5deg] shadow-md" />
+                      <div className="absolute -top-2 right-8 w-16 h-6 bg-amber-100/80 rotate-[5deg] shadow-md" />
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
             </div>
 
-            {/* Navigation Controls */}
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-4 z-50">
-              <button
+            {/* Navigation Controls with 80s aesthetic */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-4 z-50">
+              <motion.button
                 onClick={prevSlide}
-                className="w-10 h-10 rounded-full bg-red-900/50 border border-red-500/50 text-white hover:bg-red-800/70 transition-all backdrop-blur-sm"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-12 h-12 rounded-sm bg-red-900/80 border-2 border-red-500/50 text-white hover:bg-red-800 transition-all backdrop-blur-sm font-['VT323'] text-2xl shadow-[0_0_15px_rgba(239,68,68,0.5)]"
               >
                 ←
-              </button>
-              <div className="flex items-center gap-2">
+              </motion.button>
+              
+              <div className="flex items-center gap-2 bg-black/60 px-3 rounded-sm backdrop-blur-sm border border-red-900/40">
                 {carouselImages.map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCurrentSlide(idx)}
                     className={`h-2 rounded-full transition-all ${
                       idx === currentSlide
-                        ? "w-8 bg-red-500"
+                        ? "w-8 bg-red-500 shadow-[0_0_10px_#ef4444]"
                         : "w-2 bg-red-900/50 hover:bg-red-700/70"
                     }`}
                   />
                 ))}
               </div>
-              <button
+              
+              <motion.button
                 onClick={nextSlide}
-                className="w-10 h-10 rounded-full bg-red-900/50 border border-red-500/50 text-white hover:bg-red-800/70 transition-all backdrop-blur-sm"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-12 h-12 rounded-sm bg-red-900/80 border-2 border-red-500/50 text-white hover:bg-red-800 transition-all backdrop-blur-sm font-['VT323'] text-2xl shadow-[0_0_15px_rgba(239,68,68,0.5)]"
               >
                 →
-              </button>
+              </motion.button>
             </div>
           </motion.div>
         </div>
 
-        {/* Bottom Section - IIIT Sri City */}
+        {/* Bottom Section - IIIT Sri City (Real World) */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
           viewport={{ once: true }}
-          className="mt-24 text-right"
+          className="mt-32 text-right"
         >
-          <div className="inline-block text-right">
+          <div className="inline-block text-right border-r-2 border-amber-500/30 pr-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <span className="text-amber-500 font-['VT323'] text-xl tracking-wider uppercase">
-                → About
-              </span>
+              <div className="inline-block border-2 border-amber-600/50 bg-amber-950/20 px-4 py-2 backdrop-blur-sm mb-6">
+                <span className="text-amber-500 font-['VT323'] text-2xl tracking-widest uppercase">
+                  → THE REAL WORLD
+                </span>
+              </div>
             </motion.div>
             
-            <h3 className="text-4xl md:text-6xl font-['Cinzel_Decorative'] font-bold text-white mt-4 mb-6">
-              IIIT SRI CITY
+            <h3 className="text-5xl md:text-7xl font-['Cinzel_Decorative'] font-black text-white mt-4 mb-6 relative">
+              <span className="relative inline-block">
+                IIIT SRI CITY
+                <span 
+                  className="absolute top-0 left-0 text-amber-600/50 blur-lg"
+                  style={{ textShadow: "0 0 30px #d97706" }}
+                >
+                  IIIT SRI CITY
+                </span>
+              </span>
             </h3>
             
-            <p className="text-gray-300 leading-relaxed max-w-2xl ml-auto font-['Space_Grotesk']">
+            <p className="text-gray-300 leading-relaxed max-w-2xl ml-auto font-['Space_Grotesk'] text-lg">
               IIIT Sri City, established in 2013, is one of India's premier institutions for
               Information Technology education, research, and innovation. With state-of-the-art
               infrastructure and a vibrant campus culture, it nurtures future leaders in technology.
@@ -283,32 +406,13 @@ const About = () => {
 
       {/* Custom Glitch Animation Styles */}
       <style jsx>{`
-        @keyframes glitch-1 {
-          0%, 100% { transform: translate(0); }
+        @keyframes glitch-skew {
+          0% { transform: translate(0); }
           20% { transform: translate(-2px, 2px); }
           40% { transform: translate(-2px, -2px); }
           60% { transform: translate(2px, 2px); }
           80% { transform: translate(2px, -2px); }
-        }
-        
-        @keyframes glitch-2 {
-          0%, 100% { transform: translate(0); }
-          20% { transform: translate(2px, -2px); }
-          40% { transform: translate(2px, 2px); }
-          60% { transform: translate(-2px, -2px); }
-          80% { transform: translate(-2px, 2px); }
-        }
-        
-        .animate-glitch-1 {
-          animation: glitch-1 0.3s infinite;
-        }
-        
-        .animate-glitch-2 {
-          animation: glitch-2 0.3s infinite reverse;
-        }
-        
-        .perspective-1000 {
-          perspective: 1000px;
+          100% { transform: translate(0); }
         }
       `}</style>
     </section>
