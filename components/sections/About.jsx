@@ -19,10 +19,10 @@ const About = () => {
 
   // Event images from public/images directory
   const carouselImages = [
-    { src: "Abhisarga26/public/images/event1.jpg", caption: "Dance Night" },
-    { src: "Abhisarga26/public/images/event2.jpg", caption: "Tech Fest" },
-    { src: "Abhisarga26/public/images/event3.jpg", caption: "Cultural Show" },
-    { src: "Abhisarga26/public/images/event4.jpg", caption: "Pro Show" },
+    { src: "/images/event1.jpg", caption: "Dance Night" },
+    { src: "/images/event2.jpg", caption: "Tech Fest" },
+    { src: "/images/event3.jpg", caption: "Cultural Show" },
+    { src: "/images/event4.jpg", caption: "Pro Show" },
   ];
 
   // Floating spores particles
@@ -36,7 +36,7 @@ const About = () => {
 
   // Christmas lights blinking effect
   const [activeLights, setActiveLights] = useState(new Set([0, 2, 5, 7]));
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
       const newActive = new Set();
@@ -78,7 +78,7 @@ const About = () => {
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-black to-red-950/40" />
         <div className="absolute inset-0 bg-[url('/noise.png')] opacity-30 mix-blend-overlay animate-pulse" />
-        
+
         {/* Floating Spores Effect */}
         {spores.map((spore) => (
           <motion.div
@@ -112,11 +112,10 @@ const About = () => {
           {Array.from({ length: 9 }).map((_, i) => (
             <motion.div
               key={i}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                activeLights.has(i)
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${activeLights.has(i)
                   ? "bg-amber-400 shadow-[0_0_20px_#fbbf24] scale-125"
                   : "bg-amber-900/30"
-              }`}
+                }`}
               animate={activeLights.has(i) ? { scale: [1, 1.3, 1] } : {}}
               transition={{ duration: 0.5 }}
             />
@@ -163,16 +162,16 @@ const About = () => {
                 <span className="relative inline-block">
                   ABHISARGA
                   {/* Red neon glow effect */}
-                  <span 
+                  <span
                     className="absolute top-0 left-0 text-red-600 opacity-70 blur-md"
                     style={{ textShadow: "0 0 20px #dc2626, 0 0 40px #dc2626" }}
                   >
                     ABHISARGA
                   </span>
                   {/* Cyan glitch layer */}
-                  <span 
+                  <span
                     className="absolute top-0 left-0 text-cyan-500 opacity-50"
-                    style={{ 
+                    style={{
                       animation: "glitch-skew 0.3s infinite",
                       clipPath: "polygon(0 0, 100% 0, 100% 45%, 0 45%)"
                     }}
@@ -181,7 +180,7 @@ const About = () => {
                   </span>
                 </span>
               </h2>
-              
+
               {/* Red underglow */}
               <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent opacity-60 blur-sm" />
             </motion.div>
@@ -201,7 +200,7 @@ const About = () => {
                     <span className="text-amber-500 font-semibold">PROJECT NAME:</span> Abhisarga is IIIT Sri City's annual techno-cultural fest. It combines technology, culture, and entertainment, creating a vibrant platform for talent and innovation.
                   </p>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
                   <span className="text-amber-500 font-['VT323'] text-xl mt-1">▸</span>
                   <p className="text-gray-400 leading-relaxed font-['VT323'] text-lg">
@@ -224,15 +223,15 @@ const About = () => {
                 { number: "50+", label: "EVENTS", color: "amber" },
                 { number: "3", label: "DAYS", color: "cyan" },
               ].map((stat, idx) => (
-                <motion.div 
-                  key={idx} 
+                <motion.div
+                  key={idx}
                   className="relative group"
                   whileHover={{ scale: 1.05 }}
                 >
                   <div className="text-center border-2 border-red-900/40 bg-black/60 p-4 backdrop-blur-sm relative overflow-hidden">
                     {/* Scanline effect */}
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-red-500/5 to-transparent animate-pulse" />
-                    
+
                     <div className={`text-4xl font-black text-${stat.color}-500 font-['VT323'] group-hover:text-${stat.color}-400 transition-colors relative z-10`}>
                       {stat.number}
                     </div>
@@ -262,7 +261,7 @@ const About = () => {
                 {carouselImages.map((img, idx) => {
                   const offset = (idx - currentSlide + carouselImages.length) % carouselImages.length;
                   const isActive = offset === 0;
-                  
+
                   return (
                     <motion.div
                       key={idx}
@@ -287,14 +286,15 @@ const About = () => {
                       <div className="bg-white p-3 pb-12 shadow-2xl" style={{ width: "340px" }}>
                         {/* Photo Area */}
                         <div className="w-full h-64 bg-gradient-to-br from-purple-900 via-red-900 to-black overflow-hidden relative">
-                          {/* Placeholder - Replace with actual image */}
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-white/80 text-xl font-['VT323']">
-                              EVENT PHOTO {idx + 1}
-                            </span>
-                          </div>
-                          
-                          {/* VHS distortion on active */}
+
+                          {/* FIX: Add this image tag */}
+                          <img
+                            src={img.src}
+                            alt={img.caption}
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
+
+                          {/* Keep the VHS distortion effects below if you want them over the image */}
                           {isActive && (
                             <>
                               <motion.div
@@ -306,7 +306,7 @@ const About = () => {
                             </>
                           )}
                         </div>
-                        
+
                         {/* Polaroid Caption */}
                         <div className="mt-3 text-center">
                           <p className="text-gray-800 font-['VT323'] text-xl">
@@ -314,7 +314,7 @@ const About = () => {
                           </p>
                         </div>
                       </div>
-                      
+
                       {/* Tape effect on corners */}
                       <div className="absolute -top-2 left-8 w-16 h-6 bg-amber-100/80 rotate-[-5deg] shadow-md" />
                       <div className="absolute -top-2 right-8 w-16 h-6 bg-amber-100/80 rotate-[5deg] shadow-md" />
@@ -334,21 +334,20 @@ const About = () => {
               >
                 ←
               </motion.button>
-              
+
               <div className="flex items-center gap-2 bg-black/60 px-3 rounded-sm backdrop-blur-sm border border-red-900/40">
                 {carouselImages.map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCurrentSlide(idx)}
-                    className={`h-2 rounded-full transition-all ${
-                      idx === currentSlide
+                    className={`h-2 rounded-full transition-all ${idx === currentSlide
                         ? "w-8 bg-red-500 shadow-[0_0_10px_#ef4444]"
                         : "w-2 bg-red-900/50 hover:bg-red-700/70"
-                    }`}
+                      }`}
                   />
                 ))}
               </div>
-              
+
               <motion.button
                 onClick={nextSlide}
                 whileHover={{ scale: 1.1 }}
@@ -382,11 +381,11 @@ const About = () => {
                 </span>
               </div>
             </motion.div>
-            
+
             <h3 className="text-5xl md:text-7xl font-['Cinzel_Decorative'] font-black text-white mt-4 mb-6 relative">
               <span className="relative inline-block">
                 IIIT SRI CITY
-                <span 
+                <span
                   className="absolute top-0 left-0 text-amber-600/50 blur-lg"
                   style={{ textShadow: "0 0 30px #d97706" }}
                 >
@@ -394,7 +393,7 @@ const About = () => {
                 </span>
               </span>
             </h3>
-            
+
             <p className="text-gray-300 leading-relaxed max-w-2xl ml-auto font-['Space_Grotesk'] text-lg">
               IIIT Sri City, established in 2013, is one of India's premier institutions for
               Information Technology education, research, and innovation. With state-of-the-art

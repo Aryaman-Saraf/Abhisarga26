@@ -23,21 +23,15 @@ const vt323 = VT323({
 export default function RootLayout({ children }) {
   return (
     <html lang="en" data-scroll-behavior="smooth">
-      <body className={`${cinzel.variable} ${spaceGrotesk.variable} ${vt323.variable}`}>
-        {children}
-      </body>
-    </html>
-  );
-}
-
-/*export default function RootLayout({ children }) {
-  return (
-    <html lang="en" data-scroll-behavior="smooth">
-      <body className="relative min-h-screen bg-[#030204] text-white">
+      {/* Combined:
+         1. Font variables from the new code
+         2. Tailwind classes (bg/text) from the old code
+      */}
+      <body className={`${cinzel.variable} ${spaceGrotesk.variable} ${vt323.variable} relative min-h-screen bg-[#030204] text-white`}>
         <ErrorBoundary>
           <ClientShell>{children}</ClientShell>
         </ErrorBoundary>
       </body>
     </html>
-  )
-}*/
+  );
+}
