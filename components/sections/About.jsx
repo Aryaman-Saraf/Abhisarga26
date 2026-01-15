@@ -19,10 +19,10 @@ const About = () => {
 
   // Sample images - replace with your actual event images
   const carouselImages = [
-    "/images/event1.png",
-    "/images/event2.png", 
-    "/images/event3.png",
-    "/images/event4.png",
+    "Abhisarga26/public/event1.png",
+    "Abhisarga26/public/event2.png", 
+    "Abhisarga26/public/event3.png",
+    "Abhisarga26/public/event4.png",
   ];
 
   // Auto-play carousel

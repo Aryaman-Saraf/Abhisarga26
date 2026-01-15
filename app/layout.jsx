@@ -1,6 +1,9 @@
 import './globals.css'
 import ClientShell from './ClientShell'
 import ErrorBoundary from './ErrorBoundary'
+import { VT323 } from "next/font/google";
+
+const vt323 = VT323({ weight: "400", subsets: ["latin"] });
 
 export default function RootLayout({ children }) {
   return (
