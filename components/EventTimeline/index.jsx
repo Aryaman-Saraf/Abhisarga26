@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, animate } from 'framer-motion';
 import { TimelineCard } from './TimelineCard';
 import { TimelineConnector } from './TimelineConnector';
 import { FogOverlay } from './FogOverlay';
@@ -26,11 +26,6 @@ export const EventTimeline = ({ events, className = '' }) => {
   const [visibleStart, setVisibleStart] = useState(0);
   const [selectedDate, setSelectedDate] = useState(null);
   const [isHoveringTimeline, setIsHoveringTimeline] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isTouchDragging, setIsTouchDragging] = useState(false);
-  const [isGrabbing, setIsGrabbing] = useState(false);
-  const [dragStart, setDragStart] = useState(0);
-  const [touchDragStart, setTouchDragStart] = useState(0);
   const [scrollDistance, setScrollDistance] = useState(0);
   const windowSize = 7;
 
@@ -47,58 +42,20 @@ export const EventTimeline = ({ events, className = '' }) => {
   const x = useMotionValue(0);
 
   // Motion value for scrollbar handle
-  const handleX = useMotionValue(0);
-  const [isDraggingScrollbar, setIsDraggingScrollbar] = useState(false);
+  // Smooth spring for horizontal movement with enhanced fluidity
+  const smoothX = useSpring(x, {
+    stiffness: 120,
+    damping: 25,
+    mass: 0.8,
+    restDelta: 0.001,
+  });
+
   const [isTouching, setIsTouching] = useState(false);
   const [touchStartX, setTouchStartX] = useState(0);
   const [touchStartY, setTouchStartY] = useState(0);
 
-  // Calculate dynamic scrollbar dimensions based on number of cards
-  const cardsPerScrollbarUnit = 1; // Each card gets 1 unit of scrollbar space
-  const scrollbarWidth = Math.max(320, events.length * 60); // Minimum 320px, 60px per card
-  const handleWidthPercent = Math.max(10, Math.min(25, 100 / Math.max(1, events.length))); // Handle width as percentage
-  const maxHandlePosition = scrollbarWidth - (scrollbarWidth * handleWidthPercent / 100);
-
-  // Sync handle position with timeline position
-  useEffect(() => {
-    if (scrollDistance === 0) return; // Avoid division by zero
-
-    const unsubscribeX = x.onChange((value) => {
-      if (isDraggingScrollbar) return; // Don't update handle while dragging
-      // Convert current card index to handle position (0 to maxHandlePosition)
-      const totalCards = events.length;
-      const progress = selectedIndex / (totalCards - 1);
-      handleX.set(Math.max(0, Math.min(maxHandlePosition, progress * maxHandlePosition)));
-    });
-
-    const unsubscribeHandle = handleX.onChange((value) => {
-      if (!isDraggingScrollbar) return; // Only update x while dragging
-
-      // Direct card-based mapping: each position on scrollbar corresponds to a card
-      const totalCards = events.length;
-      const cardIndex = Math.round((value / maxHandlePosition) * (totalCards - 1));
-
-      // Ensure card index is within bounds
-      const clampedIndex = Math.max(0, Math.min(totalCards - 1, cardIndex));
-      setSelectedIndex(clampedIndex);
-
-      // Calculate position to center the selected card
-      if (scrollDistance < 0) {
-        // Calculate proportional position: card index determines how far to scroll
-        const progress = clampedIndex / (events.length - 1);
-        const targetX = scrollDistance * progress;
-        x.set(targetX);
-      }
-    });
-
-    return () => {
-      unsubscribeX();
-      unsubscribeHandle();
-    };
-  }, [x, handleX, scrollDistance, isDraggingScrollbar, maxHandlePosition, events.length, selectedIndex]);
-
   // Get active card based on center position (card visually in front)
-  const activeIndex = useActiveCard(cardRefs, events.length, x);
+  const { index: activeIndex, isCentered } = useActiveCard(cardRefs, events.length, x);
 
   // Initialize selectedDate to the first event's date
   useEffect(() => {
@@ -107,11 +64,16 @@ export const EventTimeline = ({ events, className = '' }) => {
     }
   }, [events, selectedDate]);
 
-  // Keep selectedIndex in sync with whichever card is visually in front
+  // Keep selectedIndex and selectedDate in sync with whichever card is visually in front
   useEffect(() => {
     if (!events.length) return;
     setSelectedIndex(activeIndex);
-  }, [activeIndex, events.length]);
+
+    // Sync selectedDate with the active event's date
+    if (events[activeIndex]) {
+      setSelectedDate(events[activeIndex].date);
+    }
+  }, [activeIndex, events]);
 
   const handleJumpToIndex = (index) => {
     if (!events.length) return;
@@ -129,11 +91,17 @@ export const EventTimeline = ({ events, className = '' }) => {
     }
 
     // On desktop, animate the timeline to center that card
-    if (scrollDistance < 0) {
-      // Calculate proportional position: card index determines how far to scroll
-      const progress = index / (events.length - 1);
-      const targetX = scrollDistance * progress;
-      x.set(targetX);
+    if (scrollDistance < 0 && cardRefs.current[index]) {
+      const card = cardRefs.current[index];
+      const cardRect = card.getBoundingClientRect();
+      const currentX = x.get();
+      const viewportCenter = window.innerWidth / 2;
+      const cardCenter = cardRect.left + cardRect.width / 2;
+      const shift = viewportCenter - cardCenter;
+
+      const targetX = Math.max(scrollDistance, Math.min(0, currentX + shift));
+
+      animate(x, targetX, { duration: 0.8, ease: [0.32, 0.72, 0, 1] });
     }
   };
 
@@ -157,15 +125,20 @@ export const EventTimeline = ({ events, className = '' }) => {
       }
 
       // On desktop, animate the timeline to center that card and sync scrollbar
-      if (scrollDistance < 0) {
-        // Calculate proportional position: card index determines how far to scroll
-        const progress = firstEventIndex / (events.length - 1);
-        const targetX = scrollDistance * progress;
-        x.set(targetX);
+      if (scrollDistance < 0 && cardRefs.current[firstEventIndex]) {
+        const card = cardRefs.current[firstEventIndex];
+        const cardRect = card.getBoundingClientRect();
+        const currentX = x.get();
+        const viewportCenter = window.innerWidth / 2;
+        const cardCenter = cardRect.left + cardRect.width / 2;
+        const shift = viewportCenter - cardCenter;
 
-        // Sync the scrollbar handle position with the selected date/event
-        const handleProgress = firstEventIndex / (events.length - 1);
-        handleX.set(Math.max(0, Math.min(maxHandlePosition, handleProgress * maxHandlePosition)));
+        // Calculate new position
+        const targetX = Math.max(scrollDistance, Math.min(0, currentX + shift));
+
+        animate(x, targetX, { duration: 0.8, ease: [0.32, 0.72, 0, 1] });
+
+
       }
     }
   };
@@ -262,11 +235,13 @@ export const EventTimeline = ({ events, className = '' }) => {
   // Calculate the horizontal scroll distance
   useEffect(() => {
     if (!trackRef.current || isMobile) return;
-    
+
     const calculateDistance = () => {
       const trackWidth = trackRef.current?.scrollWidth || 0;
       const viewportWidth = window.innerWidth;
-      setScrollDistance(-(trackWidth - viewportWidth + 100));
+      // Add extra padding (one full viewport width) to ensure the last card can definitely reach the center
+      // This compensates for browsers sometimes ignoring right-padding in scrollWidth calculations
+      setScrollDistance(-(trackWidth - viewportWidth + viewportWidth));
     };
 
     calculateDistance();
@@ -274,20 +249,14 @@ export const EventTimeline = ({ events, className = '' }) => {
     return () => window.removeEventListener('resize', calculateDistance);
   }, [events.length, isMobile]);
 
-  // Smooth spring for horizontal movement with enhanced fluidity
-  const smoothX = useSpring(x, {
-    stiffness: 120,
-    damping: 25,
-    mass: 0.8,
-    restDelta: 0.001,
-  });
+
 
   // Mobile vertical layout
   if (isMobile) {
     return (
       <div className={`relative min-h-screen bg-[#030204] st-noise ${className}`}>
         <FogOverlay />
-        
+
         {/* Header */}
         <div className="relative z-20 pt-16 pb-8 px-6 text-center space-y-4">
           <motion.h1
@@ -322,11 +291,10 @@ export const EventTimeline = ({ events, className = '' }) => {
                     key={date}
                     type="button"
                     onClick={() => handleJumpToDate(date)}
-                    className={`relative rounded-full px-3 py-1 text-[0.7rem] md:text-xs uppercase tracking-[0.18em] transition-colors whitespace-nowrap flex-shrink-0 ${
-                      isSelected
-                        ? 'bg-red-500 text-black'
-                        : 'bg-black/40 text-white/70 hover:bg-red-500/20 hover:text-white'
-                    }`}
+                    className={`relative rounded-full px-3 py-1 text-[0.7rem] md:text-xs uppercase tracking-[0.18em] transition-colors whitespace-nowrap flex-shrink-0 ${isSelected
+                      ? 'bg-red-500 text-black'
+                      : 'bg-black/40 text-white/70 hover:bg-red-500/20 hover:text-white'
+                      }`}
                   >
                     {date}
                   </button>
@@ -341,7 +309,7 @@ export const EventTimeline = ({ events, className = '' }) => {
           <div className="relative max-w-lg mx-auto">
             {/* Vertical connector line */}
             <div className="absolute left-4 top-0 bottom-0 w-[2px] bg-gradient-to-b from-red-500/60 via-red-500/40 to-red-500/20 st-line-glow" />
-            
+
             <div className="space-y-8">
               {events.map((event, index) => (
                 <div key={event.id} className="relative pl-12">
@@ -349,7 +317,7 @@ export const EventTimeline = ({ events, className = '' }) => {
                   <div className="absolute left-2 top-8 w-5 h-5 rounded-full bg-red-500 st-dot-pulse">
                     <div className="absolute inset-1 rounded-full bg-white/30" />
                   </div>
-                  
+
                   <TimelineCard
                     ref={(el) => (cardRefs.current[index] = el)}
                     event={event}
@@ -378,21 +346,14 @@ export const EventTimeline = ({ events, className = '' }) => {
       transition={{ duration: 0.8, ease: "easeOut" }}
     >
       <FogOverlay />
-      
+
       {/* Sticky container */}
       <div
         className="relative h-screen overflow-hidden flex flex-col justify-center select-none"
         onMouseEnter={() => setIsHoveringTimeline(true)}
         onMouseLeave={() => {
           setIsHoveringTimeline(false);
-          if (isDragging) {
-            handleMouseUp(); // Clean up if mouse leaves while dragging
-          }
-          if (isTouchDragging) {
-            handleTouchEnd(); // Clean up if touch leaves while dragging
-          }
         }}
-        onMouseDown={handleMouseDown}
         onWheel={handleWheel}
       >
         {/* Header */}
@@ -405,7 +366,7 @@ export const EventTimeline = ({ events, className = '' }) => {
           >
             Schedule
           </motion.h1>
-          
+
 
           {/* Date timeline bar - all unique dates */}
           <motion.div
@@ -422,11 +383,10 @@ export const EventTimeline = ({ events, className = '' }) => {
                     key={date}
                     type="button"
                     onClick={() => handleJumpToDate(date)}
-                    className={`relative rounded-full px-4 py-1 text-xs md:text-sm uppercase tracking-[0.22em] transition-colors whitespace-nowrap flex-shrink-0 ${
-                      isSelected
-                        ? 'bg-red-500 text-black scale-110'
-                        : 'bg-black/40 text-white/70 hover:bg-red-500/20 hover:text-white'
-                    }`}
+                    className={`relative rounded-full px-4 py-1 text-xs md:text-sm uppercase tracking-[0.22em] transition-colors whitespace-nowrap flex-shrink-0 ${isSelected
+                      ? 'bg-red-500 text-black scale-110'
+                      : 'bg-black/40 text-white/70 hover:bg-red-500/20 hover:text-white'
+                      }`}
                   >
                     {date}
                   </button>
@@ -438,96 +398,39 @@ export const EventTimeline = ({ events, className = '' }) => {
 
         {/* Horizontal scrolling track */}
         <div
-          className="relative z-20 w-full cursor-grab active:cursor-grabbing"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          style={{ touchAction: 'none' }}
+          className="relative z-20 w-full"
         >
           <motion.div
             ref={trackRef}
             className="flex items-center gap-4 px-[50vw]"
-            style={{ x: smoothX, position: 'relative', transform: 'translateZ(0)' }}
+            style={{ x, position: 'relative', transform: 'translateZ(0)' }}
+            drag="x"
+            dragConstraints={{ left: scrollDistance, right: 0 }}
+            dragElastic={0.1}
+            whileTap={{ cursor: "grabbing" }}
           >
-          {events.map((event, index) => (
-            <div key={event.id} className="flex items-center">
-              <TimelineConnector
-                index={index}
-                isActive={index === activeIndex}
-                isPast={index < selectedIndex}
-                isLast={index === events.length - 1}
-              />
-              <TimelineCard
-                ref={(el) => (cardRefs.current[index] = el)}
-                event={event}
-                index={index}
-                isActive={index === activeIndex}
-                isPast={index < selectedIndex}
-                isFuture={index > selectedIndex}
-              />
-            </div>
-          ))}
+            {events.map((event, index) => (
+              <div key={event.id} className="flex items-center">
+                <TimelineConnector
+                  index={index}
+                  isActive={index === activeIndex}
+                  isPast={index < selectedIndex}
+                  isLast={index === events.length - 1}
+                />
+                <TimelineCard
+                  ref={(el) => (cardRefs.current[index] = el)}
+                  event={event}
+                  index={index}
+                  isActive={index === activeIndex && isCentered}
+                  isPast={index < selectedIndex}
+                  isFuture={index > selectedIndex}
+                />
+              </div>
+            ))}
           </motion.div>
         </div>
 
-        {/* Horizontal Scrollbar */}
-        <motion.div
-          className="absolute bottom-4 left-1/2 -translate-x-1/2"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1 }}
-        >
-          <div className="flex items-center gap-4 px-6 py-3 rounded-full border border-red-500/40 bg-black/80 backdrop-blur-sm">
-            {/* Left Scroll Button */}
-            <button
-              type="button"
-              onClick={() => {
-                const currentX = x.get();
-                const newX = Math.max(scrollDistance, currentX + 200); // Scroll left (positive = right movement)
-                x.set(newX);
-              }}
-              className="flex items-center justify-center w-8 h-8 rounded-full border border-red-500/40 bg-black/60 hover:bg-red-500/20 transition-all hover:scale-110 text-red-400 text-lg font-bold"
-              aria-label="Scroll timeline left"
-            >
-              ‹
-            </button>
 
-            {/* Scrollbar Track */}
-            <div
-              className="relative h-2 bg-black/40 rounded-full overflow-hidden"
-              style={{ width: `${scrollbarWidth}px` }}
-            >
-              <motion.div
-                className="absolute top-0 left-0 h-full bg-gradient-to-r from-red-500/60 to-red-600 rounded-full cursor-pointer"
-                style={{
-                  width: `${handleWidthPercent}%`,
-                  x: handleX
-                }}
-                drag="x"
-                dragConstraints={{ left: 0, right: maxHandlePosition }}
-                dragElastic={0}
-                dragMomentum={false}
-                whileDrag={{ scale: 1.1 }}
-                onDragStart={() => setIsDraggingScrollbar(true)}
-                onDragEnd={() => setIsDraggingScrollbar(false)}
-              />
-            </div>
-
-            {/* Right Scroll Button */}
-            <button
-              type="button"
-              onClick={() => {
-                const currentX = x.get();
-                const newX = Math.max(scrollDistance, currentX - 200); // Scroll right (negative = left movement)
-                x.set(newX);
-              }}
-              className="flex items-center justify-center w-8 h-8 rounded-full border border-red-500/40 bg-black/60 hover:bg-red-500/20 transition-all hover:scale-110 text-red-400 text-lg font-bold"
-              aria-label="Scroll timeline right"
-            >
-              ›
-            </button>
-          </div>
-        </motion.div>
       </div>
     </motion.div>
   );
