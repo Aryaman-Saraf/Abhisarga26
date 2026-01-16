@@ -32,7 +32,7 @@ const FireSpark = ({ delay, left }) => (
   />
 );
 
-export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFuture }, ref) => {
+export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFuture, onHoverChange }, ref) => {
   const [isHovered, setIsHovered] = useState(false);
   const [sparks, setSparks] = useState([]);
   const sparkIdRef = useRef(0);
@@ -101,8 +101,15 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
         ${isPast ? 'opacity-60' : ''}
         ${isFuture && !isActive ? 'opacity-70 blur-[1px]' : ''}
       `}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      data-is-card="true"
+      onMouseEnter={() => {
+        setIsHovered(true);
+        if (onHoverChange) onHoverChange(true);
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        if (onHoverChange) onHoverChange(false);
+      }}
     >
       {/* Demogorgon Hands for Active Card (only when not hovered) */}
       <AnimatePresence>
