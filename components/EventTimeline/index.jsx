@@ -21,6 +21,7 @@ export const EventTimeline = ({ events, className = '' }) => {
   const containerRef = useRef(null);
   const trackRef = useRef(null);
   const cardRefs = useRef([]);
+  const wheelContainerRef = useRef(null);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [visibleStart, setVisibleStart] = useState(0);
@@ -224,13 +225,36 @@ export const EventTimeline = ({ events, className = '' }) => {
     setIsTouchDragging(false);
   };
 
-  // Prevent wheel events when hovering (allow normal vertical scroll)
-  const handleWheel = (e) => {
-    if (isHoveringTimeline) {
-      e.preventDefault(); // Prevent any scroll behavior when hovering
-    }
-    // If not hovering, allow normal vertical scroll
-  };
+  // Handle wheel for horizontal scrolling when hovering cards
+  useEffect(() => {
+    const container = wheelContainerRef.current;
+    if (!container) return;
+
+    const onWheel = (e) => {
+      // Check if hovering the timeline track zone (cards or gaps)
+      const isOverTrack = e.target.closest('[data-scroll-track="true"]');
+
+      if (isOverTrack) {
+        // Prevent default vertical scrolling
+        e.preventDefault();
+        e.stopPropagation();
+
+        const currentX = x.get();
+        // Scroll Down (positive deltaY) -> Move Right to Left (decrease x)
+        // Smoothly and slowly: standard delta is too fast, reduce it
+        const delta = e.deltaY * 0.4;
+        const newX = Math.max(scrollDistance, Math.min(0, currentX - delta));
+        x.set(newX);
+      }
+    };
+
+    // Use non-passive listener to ensure preventDefault works
+    container.addEventListener('wheel', onWheel, { passive: false });
+
+    return () => {
+      container.removeEventListener('wheel', onWheel);
+    };
+  }, [scrollDistance, x]);
 
   // Calculate the horizontal scroll distance
   useEffect(() => {
@@ -349,12 +373,12 @@ export const EventTimeline = ({ events, className = '' }) => {
 
       {/* Sticky container */}
       <div
+        ref={wheelContainerRef}
         className="relative h-screen overflow-hidden flex flex-col justify-center select-none"
         onMouseEnter={() => setIsHoveringTimeline(true)}
         onMouseLeave={() => {
           setIsHoveringTimeline(false);
         }}
-        onWheel={handleWheel}
       >
         {/* Header */}
         <div className="relative z-20 text-center mb-8 px-6 space-y-4">
@@ -396,38 +420,41 @@ export const EventTimeline = ({ events, className = '' }) => {
           </motion.div>
         </div>
 
-        {/* Horizontal scrolling track */}
+        {/* Horizontal Scroll Interaction Zone */}
         <div
-          className="relative z-20 w-full"
+          className="relative w-full py-24 z-20"
+          data-scroll-track="true"
         >
-          <motion.div
-            ref={trackRef}
-            className="flex items-center gap-4 px-[50vw]"
-            style={{ x, position: 'relative', transform: 'translateZ(0)' }}
-            drag="x"
-            dragConstraints={{ left: scrollDistance, right: 0 }}
-            dragElastic={0.1}
-            whileTap={{ cursor: "grabbing" }}
-          >
-            {events.map((event, index) => (
-              <div key={event.id} className="flex items-center">
-                <TimelineConnector
-                  index={index}
-                  isActive={index === activeIndex}
-                  isPast={index < selectedIndex}
-                  isLast={index === events.length - 1}
-                />
-                <TimelineCard
-                  ref={(el) => (cardRefs.current[index] = el)}
-                  event={event}
-                  index={index}
-                  isActive={index === activeIndex && isCentered}
-                  isPast={index < selectedIndex}
-                  isFuture={index > selectedIndex}
-                />
-              </div>
-            ))}
-          </motion.div>
+          <div className="relative w-full pointer-events-auto">
+            <motion.div
+              ref={trackRef}
+              className="flex items-center gap-4 px-[50vw]"
+              style={{ x, position: 'relative', transform: 'translateZ(0)' }}
+              drag="x"
+              dragConstraints={{ left: scrollDistance, right: 0 }}
+              dragElastic={0.1}
+              whileTap={{ cursor: "grabbing" }}
+            >
+              {events.map((event, index) => (
+                <div key={event.id} className="flex items-center">
+                  <TimelineConnector
+                    index={index}
+                    isActive={index === activeIndex}
+                    isPast={index < selectedIndex}
+                    isLast={index === events.length - 1}
+                  />
+                  <TimelineCard
+                    ref={(el) => (cardRefs.current[index] = el)}
+                    event={event}
+                    index={index}
+                    isActive={index === activeIndex && isCentered}
+                    isPast={index < selectedIndex}
+                    isFuture={index > selectedIndex}
+                  />
+                </div>
+              ))}
+            </motion.div>
+          </div>
         </div>
 
 
