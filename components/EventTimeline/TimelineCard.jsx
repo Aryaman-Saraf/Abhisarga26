@@ -9,14 +9,14 @@ const demogorgonHandRight = '/demogorgon-hand-right.png';
 const FireSpark = ({ delay, left }) => (
   <motion.div
     initial={{ y: 0, opacity: 1, scaleY: 1, scaleX: 1 }}
-    animate={{ 
-      y: -180 - Math.random() * 80, 
+    animate={{
+      y: -180 - Math.random() * 80,
       x: (Math.random() - 0.5) * 30,
       opacity: [1, 0.8, 0],
       scaleY: [1, 3, 5],
       scaleX: [1, 0.8, 0.4]
     }}
-    transition={{ 
+    transition={{
       duration: 3.0 + Math.random() * 1.5,
       delay,
       ease: 'easeOut'
@@ -32,7 +32,7 @@ const FireSpark = ({ delay, left }) => (
   />
 );
 
-export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFuture }, ref) => {
+export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFuture, onHoverChange }, ref) => {
   const [isHovered, setIsHovered] = useState(false);
   const [sparks, setSparks] = useState([]);
   const sparkIdRef = useRef(0);
@@ -101,14 +101,19 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
         ${isPast ? 'opacity-60' : ''}
         ${isFuture && !isActive ? 'opacity-70 blur-[1px]' : ''}
       `}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      layout
-      layoutId={`card-${index}`}
+      data-is-card="true"
+      onMouseEnter={() => {
+        setIsHovered(true);
+        if (onHoverChange) onHoverChange(true);
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        if (onHoverChange) onHoverChange(false);
+      }}
     >
       {/* Demogorgon Hands for Active Card (only when not hovered) */}
       <AnimatePresence>
-        {(isActive && !isHovered) && (
+        {(isActive) && (
           <>
             {/* Right Hand */}
             <motion.div
@@ -150,14 +155,14 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
               <motion.div
                 key={drip.id}
                 initial={{ y: '100%', scaleY: 0, opacity: 0 }}
-                animate={{ 
-                  y: '-20%', 
-                  scaleY: 1.2, 
+                animate={{
+                  y: '-20%',
+                  scaleY: 1.2,
                   opacity: [0, 0.9, 0.7, 0],
                 }}
                 exit={{ opacity: 0 }}
-                transition={{ 
-                  duration: 0.8, 
+                transition={{
+                  duration: 0.8,
                   delay: drip.delay,
                   ease: 'easeOut',
                 }}
@@ -210,14 +215,14 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
           transition-all duration-500 ease-out
           ${isActive ? 'st-card-glow-active border-red-500/60' : 'st-card-glow'}
           hover:border-red-500/50 hover:bg-black/80
-          group cursor-default
+          group cursor-grab active:cursor-grabbing
           overflow-hidden
         `}
         whileHover={{
           scale: isActive ? 1 : 1.03,
           transition: { duration: 0.3, ease: "easeOut" }
         }}
-        layout
+
       >
         {/* Date badge */}
         <div className="mb-4">

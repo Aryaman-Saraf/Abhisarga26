@@ -48,14 +48,14 @@ export default function TeamPage() {
     }
   }, [videoDone]);
 
-  const mouseX = useMotionValue(-500); 
+  const mouseX = useMotionValue(-500);
   const mouseY = useMotionValue(-500);
   const fogX = useSpring(mouseX, { stiffness: 40, damping: 30 });
   const fogY = useSpring(mouseY, { stiffness: 40, damping: 30 });
 
   useEffect(() => {
     const handleMouseMove = (e) => {
-      mouseX.set(e.clientX - 225); 
+      mouseX.set(e.clientX - 225);
       mouseY.set(e.clientY - 225);
     };
     window.addEventListener("mousemove", handleMouseMove);
@@ -82,9 +82,9 @@ export default function TeamPage() {
     let mCopy = [...members];
     if (catIdx === 0) {
       // 1-2-2 Pattern for desktop
-      if (mCopy.length > 0) result.push(mCopy.splice(0, 1)); 
+      if (mCopy.length > 0) result.push(mCopy.splice(0, 1));
       while (mCopy.length > 0) {
-        result.push(mCopy.splice(0, 2)); 
+        result.push(mCopy.splice(0, 2));
       }
     } else {
       // 3-2-3-2 Pattern for desktop
@@ -100,7 +100,7 @@ export default function TeamPage() {
 
   return (
     <div ref={sectionRef} className="relative w-full bg-black" style={{ minHeight: "550vh" }}>
-      
+
       <AnimatePresence>
         {!videoDone && isInView && (
           <motion.div
@@ -111,7 +111,7 @@ export default function TeamPage() {
             <video
               ref={videoRef}
               src="/video/intro_video_team.mp4"
-              autoPlay muted playsInline preload="auto" 
+              autoPlay muted playsInline preload="auto"
               onEnded={() => setVideoDone(true)}
               className="w-full h-full object-cover"
             />
@@ -133,7 +133,7 @@ export default function TeamPage() {
           {videoDone && (
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              style={{ x: fogX, y: fogY, position: 'fixed', top: 0, left: 0, zIndex: 10, pointerEvents: 'none' }}
+              style={{ x: fogX, y: fogY, position: 'absolute', top: 0, left: 0, zIndex: 10, pointerEvents: 'none' }}
               className="w-[450px] h-[450px]"
             >
               <div className="absolute inset-0 bg-[#ff0000]/25 blur-[100px] rounded-full mix-blend-screen" />
@@ -152,7 +152,7 @@ export default function TeamPage() {
           {videoDone && (
             <motion.div style={{ opacity: exploreOpacity }} className="absolute inset-0 z-[20] flex flex-col items-center justify-center px-4">
               <div className="relative flex flex-col items-center">
-                <motion.div 
+                <motion.div
                   initial={{ width: 0, opacity: 0 }}
                   animate={{ width: "200px", opacity: [0, 1, 0.5, 1] }}
                   transition={{ width: { duration: 1.5, ease: "easeOut" }, opacity: { duration: 2, repeat: Infinity } }}
@@ -169,7 +169,7 @@ export default function TeamPage() {
 
       <motion.div
         className="relative z-30 max-w-[1400px] mx-auto px-5 flex flex-col items-center"
-        style={{ marginTop: "-100vh" }} 
+        style={{ marginTop: "-100vh" }}
         animate={videoDone ? { opacity: 1 } : { opacity: 0 }}
       >
         {videoDone && (
@@ -186,8 +186,8 @@ export default function TeamPage() {
                   {/* Responsive Row Container */}
                   <div className="flex flex-col gap-[80px] md:gap-[250px] w-full items-center">
                     {rows.map((rowItems, rowIndex) => (
-                      <div 
-                        key={rowIndex} 
+                      <div
+                        key={rowIndex}
                         className={`flex flex-col min-[900px]:flex-row items-center justify-center w-full 
                           ${rowItems.length === 3 ? "gap-[40px] md:gap-[60px]" : "gap-[80px] min-[900px]:gap-[150px]"}`}
                       >
