@@ -31,7 +31,7 @@ const About = () => {
     x: Math.random() * 100,
     y: Math.random() * 100,
     duration: 10 + Math.random() * 20,
-    delay: Math.random() * 5,
+    delay: 5,
   }));
 
   // Christmas lights blinking effect
@@ -57,16 +57,6 @@ const About = () => {
     }, 4000);
     return () => clearInterval(interval);
   }, [isAutoPlaying, carouselImages.length]);
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
-    setIsAutoPlaying(false);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length);
-    setIsAutoPlaying(false);
-  };
 
   return (
     <section
@@ -145,7 +135,7 @@ const About = () => {
             >
               <div className="border-2 border-red-600/50 bg-red-950/20 px-4 py-2 backdrop-blur-sm">
                 <span className="text-red-500 font-['VT323'] text-2xl tracking-widest uppercase">
-                  → CLASSIFIED: ABOUT
+                  → ABOUT
                 </span>
               </div>
             </motion.div>
@@ -197,61 +187,28 @@ const About = () => {
                 <div className="flex items-start gap-3">
                   <span className="text-amber-500 font-['VT323'] text-xl mt-1">▸</span>
                   <p className="text-gray-300 text-lg leading-relaxed font-['Space_Grotesk']">
-                    <span className="text-amber-500 font-semibold">PROJECT NAME:</span> Abhisarga is IIIT Sri City's annual techno-cultural fest. It combines technology, culture, and entertainment, creating a vibrant platform for talent and innovation.
+                    <span className="text-amber-500 font-semibold"></span> Abhisarga is IIIT Sri City's annual techno-cultural fest. It combines technology, culture, and entertainment, creating a vibrant platform for talent and innovation.
                   </p>
                 </div>
 
                 <div className="flex items-start gap-3">
                   <span className="text-amber-500 font-['VT323'] text-xl mt-1">▸</span>
                   <p className="text-gray-400 leading-relaxed font-['VT323'] text-lg">
-                    <span className="text-red-400 font-semibold">EXPECTED PHENOMENA:</span> Experience dazzling dance competitions, proshows, DJ nights, technical challenges, cultural performances, and much more. Celebrate creativity and innovation at Abhisarga this March!
+                    <span className="text-red-400 font-semibold"></span> Experience dazzling dance competitions, proshows, DJ nights, technical challenges, cultural performances, and much more. Celebrate creativity and innovation at Abhisarga this March!
                   </p>
                 </div>
               </div>
             </motion.div>
-
-            {/* D&D Character Stats Style */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              viewport={{ once: true }}
-              className="grid grid-cols-3 gap-6 pt-4"
-            >
-              {[
-                { number: "10K+", label: "PARTICIPANTS", color: "red" },
-                { number: "50+", label: "EVENTS", color: "amber" },
-                { number: "3", label: "DAYS", color: "cyan" },
-              ].map((stat, idx) => (
-                <motion.div
-                  key={idx}
-                  className="relative group"
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <div className="text-center border-2 border-red-900/40 bg-black/60 p-4 backdrop-blur-sm relative overflow-hidden">
-                    {/* Scanline effect */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-red-500/5 to-transparent animate-pulse" />
-
-                    <div className={`text-4xl font-black text-${stat.color}-500 font-['VT323'] group-hover:text-${stat.color}-400 transition-colors relative z-10`}>
-                      {stat.number}
-                    </div>
-                    <div className="text-xs text-gray-400 uppercase tracking-widest font-['Space_Grotesk'] mt-1 relative z-10">
-                      {stat.label}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
           </motion.div>
 
-          {/* Right Content - Floating Polaroids (Upside Down Memories) */}
+          {/* Right Content - Floating Polaroids (Upside Down Memories) - ENLARGED */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             viewport={{ once: true }}
-            className="relative h-[600px] flex items-center justify-center"
-            style={{ perspective: "1200px" }}
+            className="relative h-[700px] flex items-center justify-center"
+            style={{ perspective: "1500px" }}
             onMouseEnter={() => setIsAutoPlaying(false)}
             onMouseLeave={() => setIsAutoPlaying(true)}
           >
@@ -271,30 +228,30 @@ const About = () => {
                       }}
                       initial={false}
                       animate={{
-                        x: offset * 70,
-                        y: offset * 50,
+                        x: offset * 80,
+                        y: offset * 60,
                         rotateY: offset * 20,
                         rotateZ: offset * -8,
-                        scale: isActive ? 1 : 0.8 - Math.abs(offset) * 0.12,
+                        scale: isActive ? 1 : 0.75 - Math.abs(offset) * 0.12,
                         opacity: Math.abs(offset) > 2 ? 0 : 1 - Math.abs(offset) * 0.3,
                       }}
                       transition={{ duration: 0.7, ease: "easeOut" }}
                       onClick={() => setCurrentSlide(idx)}
                       whileHover={isActive ? { scale: 1.05, rotateZ: 2 } : {}}
                     >
-                      {/* Polaroid Frame */}
-                      <div className="bg-white p-3 pb-12 shadow-2xl" style={{ width: "340px" }}>
-                        {/* Photo Area */}
-                        <div className="w-full h-64 bg-gradient-to-br from-purple-900 via-red-900 to-black overflow-hidden relative">
+                      {/* Polaroid Frame - INCREASED SIZE */}
+                      <div className="bg-white p-4 pb-16 shadow-2xl" style={{ width: "450px" }}>
+                        {/* Photo Area - INCREASED HEIGHT */}
+                        <div className="w-full h-96 bg-gradient-to-br from-purple-900 via-red-900 to-black overflow-hidden relative">
 
-                          {/* FIX: Add this image tag */}
+                          {/* Image */}
                           <img
                             src={img.src}
                             alt={img.caption}
                             className="absolute inset-0 w-full h-full object-cover"
                           />
 
-                          {/* Keep the VHS distortion effects below if you want them over the image */}
+                          {/* VHS distortion effects */}
                           {isActive && (
                             <>
                               <motion.div
@@ -308,58 +265,24 @@ const About = () => {
                         </div>
 
                         {/* Polaroid Caption */}
-                        <div className="mt-3 text-center">
-                          <p className="text-gray-800 font-['VT323'] text-xl">
+                        <div className="absolute bottom-6 left-0 right-0 text-center">
+                          <p className="text-gray-800 font-['VT323'] text-2xl">
                             {img.caption}
                           </p>
                         </div>
                       </div>
 
                       {/* Tape effect on corners */}
-                      <div className="absolute -top-2 left-8 w-16 h-6 bg-amber-100/80 rotate-[-5deg] shadow-md" />
-                      <div className="absolute -top-2 right-8 w-16 h-6 bg-amber-100/80 rotate-[5deg] shadow-md" />
+                      <div className="absolute -top-2 left-10 w-20 h-7 bg-amber-100/80 rotate-[-5deg] shadow-md" />
+                      <div className="absolute -top-2 right-10 w-20 h-7 bg-amber-100/80 rotate-[5deg] shadow-md" />
                     </motion.div>
                   );
                 })}
               </AnimatePresence>
             </div>
-
-            {/* Navigation Controls with 80s aesthetic */}
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-4 z-50">
-              <motion.button
-                onClick={prevSlide}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-12 h-12 rounded-sm bg-red-900/80 border-2 border-red-500/50 text-white hover:bg-red-800 transition-all backdrop-blur-sm font-['VT323'] text-2xl shadow-[0_0_15px_rgba(239,68,68,0.5)]"
-              >
-                ←
-              </motion.button>
-
-              <div className="flex items-center gap-2 bg-black/60 px-3 rounded-sm backdrop-blur-sm border border-red-900/40">
-                {carouselImages.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentSlide(idx)}
-                    className={`h-2 rounded-full transition-all ${idx === currentSlide
-                        ? "w-8 bg-red-500 shadow-[0_0_10px_#ef4444]"
-                        : "w-2 bg-red-900/50 hover:bg-red-700/70"
-                      }`}
-                  />
-                ))}
-              </div>
-
-              <motion.button
-                onClick={nextSlide}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-12 h-12 rounded-sm bg-red-900/80 border-2 border-red-500/50 text-white hover:bg-red-800 transition-all backdrop-blur-sm font-['VT323'] text-2xl shadow-[0_0_15px_rgba(239,68,68,0.5)]"
-              >
-                →
-              </motion.button>
-            </div>
           </motion.div>
         </div>
-
+                
         {/* Bottom Section - IIIT Sri City (Real World) */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -377,7 +300,7 @@ const About = () => {
             >
               <div className="inline-block border-2 border-amber-600/50 bg-amber-950/20 px-4 py-2 backdrop-blur-sm mb-6">
                 <span className="text-amber-500 font-['VT323'] text-2xl tracking-widest uppercase">
-                  → THE REAL WORLD
+                  → INSTITUTE
                 </span>
               </div>
             </motion.div>
